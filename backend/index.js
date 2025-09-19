@@ -20,7 +20,7 @@ const app = express();
 // 🔹 Conectar a la base de datos
 connectDB();
 
-const allowedOrigins = ['http://localhost:5173']
+const allowedOrigins = ['http://localhost:5173', 'https://reservas-viajes-hoteles-front.vercel.app/' ]
 
 
 // 🔹 Middlewares
