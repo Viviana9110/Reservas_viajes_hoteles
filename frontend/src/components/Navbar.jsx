@@ -116,26 +116,13 @@ const Navbar = () => {
           {user && (
             <>
               <NavLink
-                to="/trip-planner"
+                to="/trips"
                 onClick={() => setOpen(false)}
                 className="block"
               >
-                Planeador
+                Paquetes
               </NavLink>
-              <NavLink
-                to="/my-trip-plans"
-                onClick={() => setOpen(false)}
-                className="block"
-              >
-                Mis Planes
-              </NavLink>
-              <NavLink
-                to="/my-bookings"
-                onClick={() => setOpen(false)}
-                className="block"
-              >
-                Mis Reservas
-              </NavLink>
+              
             </>
           )}
 
