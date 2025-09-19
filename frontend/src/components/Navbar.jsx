@@ -27,27 +27,22 @@ const Navbar = () => {
   }, [location.pathname]);
 
   return (
-    <nav
-      className={`fixed top-0 left-0 w-full bg-white/20 backdrop-blur flex items-center justify-between px-4 md:px-16 lg:px-24 xl:px-32 transition-all duration-500 z-50 ${
-        isScrolled
-          ? "bg-white/80 shadow-md text-gray-700 backdrop-blur-lg py-3 md:py-4"
-          : "py-4 md:py-6"
-      }`}
-    >
+    <nav className={`fixed top-0 left-0 w-full flex items-center justify-between px-4 md:px-16 lg:px-24 xl:px-32 transition-all duration-500 z-50 ${isScrolled ? "bg-white/80 shadow-md text-gray-700 backdrop-blur-lg py-3 md:py-4" : "py-4 md:py-6"}`}>
+
       {/* Logo */}
       <Link to="/">
         <img src={assets.logoTour} alt="logo" className="w-25" />
       </Link>
 
       {/* Desktop Menu */}
-      <div className="hidden sm:flex items-center gap-8 text-white">
-        <NavLink to="/" className="text-gray-950 hover:text-gray-500">Home</NavLink>
-        <NavLink to="/hotels" className="text-gray-950 hover:text-gray-500">Hoteles</NavLink>
-        <NavLink to="/trips" className="text-gray-950 hover:text-gray-500">Paquetes</NavLink>
+      <div className="hidden md:flex items-center gap-4 lg:gap-8">
+        <NavLink to="/" className={`group flex flex-col gap-0.5 ${isScrolled ? "text-gray-700" : "text-white text-xl group-hover:w-full transition-all duration-300"}`}>Home</NavLink>
+        <NavLink to="/hotels" className={`group flex flex-col gap-0.5 ${isScrolled ? "text-gray-700" : "text-white text-xl group-hover:w-full transition-all duration-300"}`}>Hoteles</NavLink>
+        <NavLink to="/trips" className={`group flex flex-col gap-0.5 ${isScrolled ? "text-gray-700" : "text-white text-xl group-hover:w-full transition-all duration-300"}`}>Paquetes</NavLink>
 
         {/* 👇 Dashboard solo si es owner */}
         {user?.role === "owner" && (
-          <NavLink to="/owner" className="border px-4 py-1 text-gray-950 hover:text-gray-500 rounded-full cursor-pointer">
+          <NavLink to="/owner" className={`border px-4 py-1 text-xl font-semibold rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`}>
             Dashboard
           </NavLink>
         )}
@@ -56,18 +51,18 @@ const Navbar = () => {
         {!user ? (
           <button
             onClick={() => setShowUserLogin(true)}
-            className="cursor-pointer px-8 py-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full"
+            className="bg-black text-white px-8 py-2.5 rounded-full ml-4 transition-all duration-500"
           >
             Login
           </button>
         ) : (
           <div className="relative group cursor-pointer flex items-center gap-2">
             {/* Avatar */}
-            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-500 text-white font-bold">
+            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-black text-white text-xl font-semibold">
               {user.name?.charAt(0).toUpperCase() || "U"}
             </div>
             {/* Nombre */}
-            <span className="text-gray-700 font-medium">{user.name}</span>
+            <span className="text-white text-xl font-medium">{user.name}</span>
 
             {/* Dropdown */}
             <ul className="hidden group-hover:block absolute top-12 right-0  bg-white/20 backdrop-blur shadow border border-gray py-2.5 w-44 rounded-md text-sm z-40">

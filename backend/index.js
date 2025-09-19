@@ -8,6 +8,8 @@ import hotelsRoutes from "./routes/hotels.routes.js";
 import roomRoutes from "./routes/rooms.routes.js";
 
 import bookingsRoutes from "./routes/bookings.routes.js";
+import bookingTripRoutes from "./routes/bookingsTrip.routes.js";
+
 import packageRoutes from "./routes/package.routes.js";
 
 import { notFound, onError } from "./middlewares/error.js";
@@ -36,6 +38,8 @@ app.use("/api/hoteles", roomRoutes); //Habitaciones
 app.use("/api/rooms", roomRoutes)
 app.use("/api/bookings", bookingsRoutes); // rutas de reservas
 app.use("/api/trips", packageRoutes );
+app.use("/api/booking-trips", bookingTripRoutes); // rutas de reservas
+
 
 // 🔹 Manejo de errores
 app.use(notFound);

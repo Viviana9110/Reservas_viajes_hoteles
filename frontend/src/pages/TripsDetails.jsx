@@ -1,91 +1,200 @@
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { assets, roomCommonData, tripsDummyData} from '../assets/assets'
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { assets, roomCommonData, tripsDummyData } from "../assets/assets";
 
 const TripsDetails = () => {
-    const {id} = useParams()
-    const [trips, setTrips] = useState(null)
-    const [mainImage, setMainImage] = useState(null)
+  const { id } = useParams();
+  const [trips, setTrips] = useState(null);
+  const [mainImage, setMainImage] = useState(null);
 
-    useEffect(()=>{
-       const trips = tripsDummyData.find(trips => trips._id === id)
-       trips && setTrips(trips)
-       trips && setMainImage(trips.images[0])
-    },[])
+  // Estado del modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [message, setMessage] = useState("");
 
-   
-  return trips && (
-      <div className='py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32'>
-      {/* Trip Details */}
-      <div className='flex flex-col md:flex-row items-start md:items-center gap-2'>
-        <h1 className='text-3xl md:text-4xl font-playfair'>
-            {trips.name}</h1>
-        <p className='text-xs font-inter py-1.5 px-3 text-white bg-third rounded-full'>20% OFF</p>
-      </div>
+  // Simulación usuario logueado (en real, vendría de authContext o Redux)
+  const userId = "66a1111a1111111111111111";
 
-      {/* Room Raiting */}
-      <div className='flex items-center gap-1 mt-2'>
-        <p className='ml-2'>200+ reviews</p>
-      </div>
+  useEffect(() => {
+    const tripsFound = tripsDummyData.find((trips) => trips._id === id);
+    tripsFound && setTrips(tripsFound);
+    tripsFound && setMainImage(tripsFound.images[0]);
+  }, [id]);
 
-     {/* Room Address */}
-      <div className='flex items-center gap-1 text-gray-500 mt-2'>
-        <img src={assets.locationIcon} alt="location-icon" />
-        <span>{trips.destination}</span>
-      </div>
+  // Verificar disponibilidad
+  const checkAvailability = async () => {
+    if (!checkIn || !checkOut) {
+      setMessage("Debes seleccionar fechas.");
+      return;
+    }
 
-    {/* Room Images */}
-    <div className='flex flex-col lg:flex-row mt-6 gap-6'>
-        <div className='lg:w-1/2 w-full'>
-            <img src={mainImage} alt="Room Image" 
-            className='w-full rounded-xl shadow-lg object-cover'/>
+    try {
+      const res = await fetch("http://localhost:4000/api/booking-trips/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user: userId, checkIn, checkOut }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.available) {
+        setIsAvailable(true);
+        setMessage("✅ Fechas disponibles, puedes reservar.");
+      } else {
+        setIsAvailable(false);
+        setMessage("❌ Ya tienes una reserva en estas fechas.");
+      }
+    } catch (error) {
+      console.error("Error verificando disponibilidad", error);
+      setMessage("Error al verificar disponibilidad.");
+    }
+  };
+
+  // Confirmar reserva
+  const handleBooking = async () => {
+    try {
+      const res = await fetch("http://localhost:4000/api/booking-trips", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: userId,
+          trip: id,
+          checkIn,
+          checkOut,
+        }),
+      });
+
+      if (res.ok) {
+        setMessage("🎉 Reserva realizada con éxito");
+        setIsModalOpen(false);
+      } else {
+        setMessage("❌ No se pudo realizar la reserva.");
+      }
+    } catch (error) {
+      console.error("Error creando reserva", error);
+    }
+  };
+
+  return (
+    trips && (
+      <div className="py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32">
+        {/* Trip Details */}
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
+          <h1 className="text-3xl md:text-4xl font-playfair">{trips.name}</h1>
+          <p className="text-xs font-inter py-1.5 px-3 text-white bg-third rounded-full">
+            20% OFF
+          </p>
         </div>
-        <div className='grid grid-cols-2 gap-4 lg:w-1/2 w-full'>
-            {trips?.images.length > 1 && trips.images.map((image, index)=>(
-                <img onClick={()=> setMainImage(image)}
-                 key={index} src={image} alt="Room Image" 
-                 className={`w-full rounded-xl shadow-md object-cover cursor-pointer ${mainImage === image && 'outline-3 outline-orange-500'}`}/>
-            ))}
-        </div>
-    </div>
 
-    {/* Room Highlights */}
-    <div className='flex flex-col md:flex-row md:justify-between mt-10'>
-        <div className='flex flex-col'>
-            <h1 className='text-3xl md:text-4xl font-playfair'>Una Verdadera Experiencia De Lujo</h1>
-            <div className='flex flex-wrap items-center mt-3 mb-6 gap-4'>
-                {trips.description}
+        {/* Imagenes */}
+        <div className="flex flex-col lg:flex-row mt-6 gap-6">
+          <div className="lg:w-1/2 w-full">
+            <img
+              src={mainImage}
+              alt="Trip"
+              className="w-full rounded-xl shadow-lg object-cover"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4 lg:w-1/2 w-full">
+            {trips?.images.length > 1 &&
+              trips.images.map((image, index) => (
+                <img
+                  onClick={() => setMainImage(image)}
+                  key={index}
+                  src={image}
+                  alt="Trip"
+                  className={`w-full rounded-xl shadow-md object-cover cursor-pointer ${
+                    mainImage === image && "outline-3 outline-orange-500"
+                  }`}
+                />
+              ))}
+          </div>
+        </div>
+
+        {/* Descripción */}
+        <div className="flex flex-col md:flex-row md:justify-between mt-10">
+          <div className="flex flex-col">
+            <h1 className="text-3xl md:text-4xl font-playfair">
+              Una Verdadera Experiencia De Lujo
+            </h1>
+            <div className="flex flex-wrap items-center mt-3 mb-6 gap-4">
+              {trips.description}
             </div>
-            
-        </div>
-         {/* Room Price */}
-        <p className='text-2xl font-medium'>${trips.price}</p>
-    </div>
-
-    {/* CheckIn CheckOut Form */}
-     <form className='flex flex-col md:flex-row items-start md:items-center justify-between bg-white shadow-[0px_0px_20px_rgba(0,0,0,0.15)] p-6 rounded-xl mx-auto mt-16 max-w-6xl'>
-
-        <div className='flex flex-col flex-wrap md:flex-row items-start md:items-center gap-4 md:gap-10 text-gray-500'>
-
-            <div className='flex flex-col'>
-                <label htmlFor="checkInDate" className='font-medium'>Check-In</label>
-                <input type="date" id='checkInDate' placeholder='Check-In' className='w-full rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none' required/>
-            </div>
-            <div className='w-px h-15 bg-gray-300/70 max-md:hidden'></div>
-            <div className='flex flex-col'>
-                <label htmlFor="checkOutDate" className='font-medium'>Check-Out</label>
-                <input type="date" id='checkOutDate' placeholder='Check-Out' className='w-full rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none' required/>
-            </div>
-            <div className='w-px h-15 bg-gray-300/70 max-md:hidden'></div>
-            
+          </div>
+          <p className="text-2xl font-medium">${trips.price}</p>
         </div>
 
-        <button type='submit' className='bg-secondary hover:bg-primary active:scale-95 transition-all text-white rounded-md max-md:w-full max-md:mt-6 md:px-25 py-3 md:py-4 text-base cursor-pointer'>
-            Ver Disponibilidad
+        {/* Botón reservar */}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="mt-3 bg-blue-500 text-white px-4 py-2 rounded-lg"
+        >
+          Reservar
         </button>
-     </form>
 
-     {/* Common Specifications */}
+        {/* Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+              <h2 className="text-xl font-bold mb-4">Reservar Viaje</h2>
+
+              <label>Check In</label>
+              <input
+                type="date"
+                value={checkIn}
+                onChange={(e) => setCheckIn(e.target.value)}
+                className="w-full border p-2 rounded mb-3"
+              />
+
+              <label>Check Out</label>
+              <input
+                type="date"
+                value={checkOut}
+                onChange={(e) => setCheckOut(e.target.value)}
+                className="w-full border p-2 rounded mb-3"
+              />
+
+              <button
+                onClick={checkAvailability}
+                className="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-700 mb-2"
+              >
+                Verificar disponibilidad
+              </button>
+
+              {message && (
+                <p
+                  className={`text-sm mb-2 ${
+                    isAvailable ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {message}
+                </p>
+              )}
+
+              <button
+                onClick={handleBooking}
+                disabled={!isAvailable}
+                className={`w-full py-2 rounded ${
+                  isAvailable
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
+              >
+                Confirmar Reserva
+              </button>
+
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="w-full mt-2 bg-red-500 text-white py-2 rounded hover:bg-red-600"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
+
+         {/* Common Specifications */}
     <div className='mt-25 space-y-4'>
         {roomCommonData.map((spec, index)=>(
             <div key={index} className='flex items-start gap-2'>
@@ -98,7 +207,7 @@ const TripsDetails = () => {
         ))}
     </div>
 
-     <div className='max-w-3xl border-y border-gray-300 my-15 py-10 text-gray-500'>
+    <div className='max-w-3xl border-y border-gray-300 my-15 py-10 text-gray-500'>
         <p>★ LA SEPARACIÓN DEL CUPO: SE HACE POR PERSONA.CON EL 50%
            ★ SE GARANTIZA LA SALIDA CON UN MÍNIMO DE 16 PASAJEROS
            ★ LA HABITACIÓN DOBLE IMPLICA UNA INVERSIÓN POR PERSONA DE $ 90.000</p>
@@ -117,10 +226,10 @@ const TripsDetails = () => {
         </div>
         <button className='px-6 py-2.5 mt-4 rounded text-white bg-secondary hover:bg-primary transition-all cursor-pointer'>Contact Now</button>
     </div>
+    
+      </div>
+    )
+  );
+};
 
-
-    </div>
-  )
-}
-
-export default TripsDetails
+export default TripsDetails;

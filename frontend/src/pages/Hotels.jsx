@@ -16,19 +16,20 @@ const Hotels = () => {
         </div>
 
         {hotels.map((hotel) => (
-        <div key={hotel._id} className="flex flex-col md:flex-row items-start py-10 gap-6 border-b border-gray-300 last:pb-30 last:border-0">
+        <div key={hotel._id} className='flex flex-col md:flex-row items-start py-10 gap-6 border-b border-gray-300 last:pb-30 last:border-0'>
           <div className='md:w-1/2 flex flex-col gap-2'>
-            <h2 className="text-xl font-bold mb-2">{hotel.name}</h2>
+            <h1 className="text-xl font-bold mb-2">{hotel.name}</h1>
             <p className="text-gray-600">
-              {hotel.location?.city}, {hotel.location?.country}
-            </p>          
+              {hotel.location?.city}
+            </p>   
+            <p className="text-sm text-gray-500">{hotel.location?.address}</p>
+            <p className="text-sm text-gray-500">{hotel.description}</p>
           </div>
           
-          <p className="text-sm text-gray-500">{hotel.location?.address}</p>
-          <p className="text-sm text-gray-500">{hotel.description}</p>
           <div className='flex flex-wrap items-center mt-3 mb-6 gap-4'>
-            <p className="text-sm text-gray-500">{hotel.amenities}</p>
-
+            <div className='flex items-center gap-2 px-3 py-2 rounded-lg bg-[#F5F5FF]/70'>
+              <p className="text-sm text-gray-500">{hotel.amenities}</p>
+            </div>            
           </div>
 
 

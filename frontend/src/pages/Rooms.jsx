@@ -92,28 +92,53 @@ const Rooms = () => {
             <h1 className='font-playfair text-4xl md:text-[40px]'>Habitaciones</h1>
             <p className='text-sm md:text-base text-gray-500/90 mt-2 max-w-174'>Take advantage of our limited-time offers and special packages to enhance your stay and create unforgettable memories.</p>
         </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-8">
-        {rooms.length > 0 ? (
-          rooms.map((room) => (
-            <div key={room._id} className="border rounded-xl shadow-md p-4">
-              <h2 className="text-lg font-bold mb-2">
+
+<div class="">
+  
+            {rooms.length > 0 ? ( rooms.map((room) => (     
+                         
+            <div key={room._id} className="flex flex-col items-center bg-white shadow-md rounded-xl py-6 px-5 md:w-[460px] w-[370px] border border-gray-200">
+              <div className="flex items-center justify-center p-4 bg-indigo-200 rounded-full">
+                <svg 
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={1.8}
+    stroke="#2563EB" // azul (Tailwind: text-blue-600)
+    className="w-6 h-6"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M3 10h18M4 10V6a2 2 0 012-2h12a2 2 0 012 2v4M4 10v10m16-10v10M8 14h8"
+    />
+  </svg>
+              </div>
+              <h2 className="text-gray-900 font-semibold mt-4 text-xl">
                 Habitación {room.roomNumber}
               </h2>
-              <p className="text-gray-600 capitalize">Tipo: {room.type}</p>
-              <p className="text-gray-600">
+              <p class="text-sm text-gray-600 mt-2 text-center">
+                Desea consultar la disponibilidad de esta habitación?.
+               </p>
+                <p className="text-gray-500/60 text-sm capitalize">Tipo: {room.type}</p>
+              <p className="text-gray-500/60 text-sm capitalize">
                 Capacidad: {room.capacity} personas
+              </p>             
+            
+              <div class="flex items-center justify-center gap-4 mt-5 w-full">
+                <p className="md:text-xl text-base font-medium text-indigo-500">
+                <span className="text-gray-500/60 md:text-sm text-xs">${room.pricePerNight}/noche</span>
               </p>
-              <p className="font-semibold text-blue-600">
-                ${room.pricePerNight} / noche
-              </p>
-
-              {/* Abrir modal */}
+              <div className="text-indigo-500">
+                {/* Abrir modal */}
               <button
-                className="mt-3 bg-blue-500 text-white px-4 py-2 rounded-lg"
+                className="w-full md:w-36 h-10 rounded-md text-white bg-indigo-950 font-medium text-sm hover:bg-indigo-500 active:scale-95 transition"
                 onClick={() => setSelectedRoom(room)}
               >
-                Consultar disponibilidad
+                Ver
               </button>
+              </div>           
+                  </div>          
             </div>
           ))
         ) : (
@@ -128,27 +153,61 @@ const Rooms = () => {
 
       {/* Modal */}
       {selectedRoom && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white rounded-xl p-6 w-96 shadow-lg">
-            <h2 className="text-xl font-bold mb-4">
-              Habitación {selectedRoom.roomNumber}
-            </h2>
+        <div className="fixed inset-0  bg-black/60 backdrop-blur bg-opacity-50 flex justify-center items-center">
+           <div className="flex flex-col items-center bg-white shadow-md rounded-xl py-6 px-5 md:w-[460px] w-[370px] border border-gray-200">
+            <div className="flex items-center justify-center p-4 bg-green-100 rounded-full">
+                <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={1.8}
+    stroke="#16A34A" // verde éxito (Tailwind: text-green-600)
+    className="w-6 h-6"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M8 7V3m8 4V3m-9 8h10m2-6h1a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h1m12 0V3m-8 10l2 2 4-4"
+    />
+  </svg>
+            </div>
+            <h2 className="text-gray-900 font-semibold mt-4 text-xl">Habitación {selectedRoom.roomNumber}</h2>
+            <p className="text-sm text-gray-600 mt-2 text-center">
+                Do you really want to continue? This action<br />cannot be undone.
+            </p>
 
-            <div className="flex flex-col gap-4">
-              <input
-                type="date"
-                value={checkIn}
-                onChange={(e) => setCheckIn(e.target.value)}
-                className="border rounded p-2"
-              />
-              <input
-                type="date"
-                value={checkOut}
-                onChange={(e) => setCheckOut(e.target.value)}
-                className="border rounded p-2"
-              />
+            <div className="bg-white text-gray-500 rounded-lg px-6 py-4  flex flex-col md:flex-row max-md:items-start gap-4 max-md:mx-auto">
+              <div>
+                <div className='flex items-center gap-2'>
+                    <svg className="w-4 h-4 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" >
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 10h16M8 14h8m-4-7V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z" />
+                    </svg>
+                    <label htmlFor="checkIn">Check in</label>
+                </div>
+                <input 
+                  id="checkIn" 
+                  type="date" value={checkIn}
+                  onChange={(e) => setCheckIn(e.target.value)} 
+                  className=" rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none" />
             </div>
 
+            <div>
+                <div className='flex items-center gap-2'>
+                    <svg className="w-4 h-4 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" >
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 10h16M8 14h8m-4-7V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z" />
+                    </svg>
+                    <label htmlFor="checkOut">Check out</label>
+                </div>
+                <input 
+                  id="checkOut" 
+                  type="date" 
+                  value={checkOut}
+                  onChange={(e) => setCheckOut(e.target.value)}
+                  className=" rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none" />
+            </div>
+            </div>
+            
+            
             {/* Resultado de disponibilidad */}
             {roomAvailability && (
               <p
@@ -160,21 +219,22 @@ const Rooms = () => {
               </p>
             )}
 
-            <div className="flex justify-end gap-3 mt-6">
+             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => {
                   setSelectedRoom(null);
                   setRoomAvailability(null);
                 }}
-                className="px-4 py-2 rounded-lg border"
+                className="w-full md:w-36 h-10 rounded-md border border-gray-300 bg-white text-gray-600 font-medium text-sm hover:bg-gray-100 active:scale-95 transition"
               >
                 Cancelar
               </button>
 
               {!roomAvailability?.available ? (
+                
                 <button
                   onClick={checkAvailability}
-                  className="px-4 py-2 rounded-lg bg-blue-600 text-white"
+                  className="w-full md:w-36 h-10 rounded-md text-white bg-blue-950 font-medium text-sm hover:bg-blue-600 active:scale-95 transition"
                   disabled={loadingCheck}
                 >
                   {loadingCheck ? "Consultando..." : "Consultar"}
@@ -187,8 +247,8 @@ const Rooms = () => {
                   Reservar
                 </button>
               )}
-            </div>
-          </div>
+            </div>            
+        </div>         
         </div>
       )}
     </div>
