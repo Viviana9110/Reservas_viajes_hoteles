@@ -26,7 +26,7 @@ const allowedOrigins = ['http://localhost:5173', 'https://reservas-viajes-hotele
 // 🔹 Middlewares
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.use(cors({ origin: "*", credentials: true }));
 
 // 🔹 Ruta de prueba
 app.get("/", (req, res) => res.send("API is working 🚀"));
