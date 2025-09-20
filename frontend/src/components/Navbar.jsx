@@ -131,6 +131,13 @@ const Navbar = () => {
               >
                 Mis Reservas
               </NavLink>
+              <NavLink
+                to="/my-bookings-trips"
+                onClick={() => setOpen(false)}
+                className="block"
+              >
+                Mis Viajes
+              </NavLink>
               
             </>
           )}
