@@ -72,6 +72,12 @@ const Navbar = () => {
               >
                 Mis Reservas
               </li>
+              <li
+                onClick={() => navigate("/my-bookings-trips")}
+                className="p-2 text-gray-950 hover:text-gray-500 cursor-pointer"
+              >
+                Mis Viajes
+              </li>
               
               <li
                 onClick={logoutUser}
@@ -112,15 +118,18 @@ const Navbar = () => {
           <NavLink to="/hotels" onClick={() => setOpen(false)} className="block">
             Hoteles
           </NavLink>
+          <NavLink to="/trips" onClick={() => setOpen(false)} className="block">
+            Paquetes
+          </NavLink>
 
           {user && (
             <>
               <NavLink
-                to="/trips"
+                to="/"
                 onClick={() => setOpen(false)}
                 className="block"
               >
-                Paquetes
+                Mis Reservas
               </NavLink>
               
             </>

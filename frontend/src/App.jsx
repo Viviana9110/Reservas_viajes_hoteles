@@ -8,6 +8,7 @@ import { useAppContext } from './context/AppContext.jsx';
 import Hotels from './pages/Hotels.jsx';
 import AllRooms from './pages/AllRooms';
 import MyBookings from './pages/MyBookings';
+import MyBookingTrips from './pages/MyBookingTrips.jsx';
 import Layout from './pages/hotelOwner/Layout';
 import Dashboard from './pages/hotelOwner/Dashboard';
 import AddRoom from './pages/hotelOwner/AddRoom';
@@ -49,6 +50,7 @@ const App = () => {
           <Route path='/rooms' element={<AllRooms />} />
           <Route path="/rooms/:id" element={<Rooms />} />
           <Route path='/my-bookings' element={<MyBookings />} />
+          <Route path='/my-bookings-trips' element={<MyBookingTrips />} />
           <Route path='/hotels' element={<Hotels />} />
           <Route path='/trips' element={<Trips/>}/>
           <Route path='/trips/:id' element={<TripsDetails/>}/>
