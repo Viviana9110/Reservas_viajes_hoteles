@@ -12,9 +12,7 @@ const MyBookings = () => {
     const fetchBookings = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/bookings/user/${user._id}`,
-          { credentials: "include" }
-        );
+          `http://localhost:4000/api/bookings/user/68ace0ab41d81f213fdece68`);
         const data = await res.json();
         setBookings(data);
       } catch (err) {
