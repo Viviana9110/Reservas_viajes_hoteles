@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 
 // 🔑 URL dinámica (local por defecto, producción con VITE_API_URL)
 const API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:4000";
+  import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 
 const Rooms = () => {
