@@ -15,7 +15,9 @@ const TripsDetails = () => {
   const [message, setMessage] = useState("");
 
   // Simulación usuario logueado (en real, vendría de authContext o Redux)
-  const userId = "66a1111a1111111111111111";
+  const userId = "68ace0ab41d81f213fdece68";
+
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
   useEffect(() => {
     const tripsFound = tripsDummyData.find((trips) => trips._id === id);
@@ -31,7 +33,7 @@ const TripsDetails = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/api/booking-trips/check", {
+      const res = await fetch(`${API_URL}/api/booking-trips/check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user: userId, checkIn, checkOut }),
@@ -54,7 +56,7 @@ const TripsDetails = () => {
   // Confirmar reserva
   const handleBooking = async () => {
     try {
-      const res = await fetch("http://localhost:4000/api/booking-trips", {
+      const res = await fetch(`${API_URL}/api/booking-trips`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
