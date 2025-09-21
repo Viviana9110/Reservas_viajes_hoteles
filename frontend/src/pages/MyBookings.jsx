@@ -62,7 +62,7 @@ const MyBookings = () => {
   if (loading) return <p className="text-center">Cargando tus reservas...</p>;
 
   return (
-    <div className='flex flex-col-reverse lg:flex-row items-start justify-between pt-28 md:pt-35 px-4 md:px-16 lg:px-24 xl:px-32'>
+    <div className='py-28 md:pb-35 md:pt-32 px-4 md:px-16 lg:px-24 xl:px-32'>
       <div>
         <div className='flex flex-col items-start text-left'>
             <h1 className='font-playfair text-4xl md:text-[40px]'>Mis Reservas</h1>
@@ -86,29 +86,43 @@ const MyBookings = () => {
           return (
             <div
               key={booking._id}
-              className="border rounded-lg shadow-md p-4 mb-4"
+                className="grid grid-cols-1 md:grid-cols-[3fr_2fr_1fr] w-full border-b border-gray-300 py-6 first:border-t"
             >
-              <h3 className="text-lg font-semibold">{booking.hotel?.name}</h3>
-              <p className="text-gray-600">
+                <div className="flex flex-col md:flex-row">
+                  <div className='flex flex-col gap-1.5 max-md:mt-3 min-md:ml-4'>
+                <h3 className="text-lg font-semibold">{booking.hotel?.name}</h3>
+              <div className='flex items-center gap-1 text-sm text-gray-500'>
+                <p className="text-gray-600">                
                 {booking.hotel?.location?.city},{" "}
                 {booking.hotel?.location?.country}
               </p>
-              <p>
-                Habitación: {booking.room?.roomNumber} ({booking.room?.type})
-              </p>
-              <p>
+              </div>              
+              
+              <div className='flex items-center gap-1 text-sm text-gray-500'>
+                <p className="mt-2 text-gray-700">
+                  Habitación: {booking.room?.roomNumber} ({booking.room?.type})
+                </p>
+              </div>
+              <p className="text-base">Total: ${total}</p>
+              </div>
+            </div>
+
+            <div className='flex flex-row md:items-center md:gap-12 mt-3 gap-8'>
+              <div>                
                 <span className="font-bold">Check-In:</span>{" "}
                 {new Date(booking.checkIn).toLocaleDateString()}
-              </p>
-              <p>
+              
+              </div>
+              <div>                
                 <span className="font-bold">Check-Out:</span>{" "}
                 {new Date(booking.checkOut).toLocaleDateString()}
-              </p>
-              <p className="font-semibold text-blue-600 mt-2">
-                Total: ${total}
-              </p>
-
-              {/* ✅ Botón cancelar */}
+              
+              </div>
+            </div>      
+            
+            <div className='flex flex-col items-start justify-center pt-3'>
+                <div className="flex items-center gap-2">
+                  {/* ✅ Botón cancelar */}
               <button
                 onClick={() => cancelBooking(booking._id)}
                 disabled={canceling === booking._id}
@@ -116,13 +130,16 @@ const MyBookings = () => {
               >
                 {canceling === booking._id ? "Cancelando..." : "Cancelar"}
               </button>
+                </div>
+              </div>
+ 
+
+              
             </div>
           );
         })
       )}
-      </div>
-
-     
+      </div>     
     </div>
   );
 };
