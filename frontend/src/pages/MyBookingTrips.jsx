@@ -40,8 +40,7 @@ const MyBookingTrips = () => {
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/booking-trips/${bookingId}`,
         {
-          method: "DELETE",
-          credentials: "include",
+          method: "DELETE"
         }
       );
 
