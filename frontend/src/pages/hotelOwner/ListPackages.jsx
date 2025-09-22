@@ -1,23 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useAppContext } from "../../context/AppContext";
 import axios from "axios";
 
 const ListPackages = () => {
-  const [packages, setPackages] = useState([]);
-
-  // Cargar paquetes desde el backend
-  const fetchPackages = async () => {
-    try {
-      const res = await axios.get("http://localhost:4000/api/packages"); // asegúrate que tu proxy o baseURL esté configurado
-      setPackages(res.data);
-    } catch (error) {
-      console.error("Error al obtener paquetes:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchPackages();
-  }, []);
-
+   const { trips, loadingTrips } = useAppContext();
+  
+    if (loadingTrips) return <p className="text-center py-10 text-gray-500">Cargando viajes...</p>;
+  
   return (
     <div className="flex-1 py-10 flex flex-col justify-between">
       <div className="w-full md:p-10 p-4">
@@ -33,18 +22,18 @@ const ListPackages = () => {
               </tr>
             </thead>
             <tbody className="text-sm text-gray-500">
-              {packages.map((pkg) => (
-                <tr key={pkg._id} className="border-t border-gray-500/20">
+              {trips.map((trips) => (
+                <tr key={trips._id} className="border-t border-gray-500/20">
                   <td className="md:px-4 pl-2 md:pl-4 py-3 truncate">
-                    {pkg.name}
+                    {trips.name}
                   </td>
-                  <td className="px-4 py-3">{pkg.destination}</td>
-                  <td className="px-4 py-3 max-sm:hidden">${pkg.price}</td>
-                  <td className="px-4 py-3">{pkg.days} días</td>
+                  <td className="px-4 py-3">{trips.destination}</td>
+                  <td className="px-4 py-3 max-sm:hidden">${trips.price}</td>
+                  <td className="px-4 py-3">{trips.days} días</td>
                 </tr>
               ))}
 
-              {packages.length === 0 && (
+              {trips.length === 0 && (
                 <tr>
                   <td colSpan="4" className="text-center py-4 text-gray-400">
                     No hay paquetes disponibles

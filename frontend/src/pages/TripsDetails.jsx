@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { assets, roomCommonData, tripsDummyData } from "../assets/assets";
+import { useAppContext } from "../context/AppContext";
 
 const TripsDetails = () => {
   const { id } = useParams();
+  const { user } = useAppContext();
   const [trips, setTrips] = useState(null);
   const [mainImage, setMainImage] = useState(null);
 
@@ -13,9 +15,6 @@ const TripsDetails = () => {
   const [checkOut, setCheckOut] = useState("");
   const [isAvailable, setIsAvailable] = useState(false);
   const [message, setMessage] = useState("");
-
-  // Simulación usuario logueado (en real, vendría de authContext o Redux)
-  const userId = "68ace0ab41d81f213fdece68";
 
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -36,7 +35,7 @@ const TripsDetails = () => {
       const res = await fetch(`${API_URL}/api/booking-trips/check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user: userId, checkIn, checkOut }),
+        body: JSON.stringify({ user: user?._id, checkIn, checkOut }),
       });
 
       const data = await res.json();
@@ -60,7 +59,7 @@ const TripsDetails = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user: userId,
+          user: user?._id,
           trip: id,
           checkIn,
           checkOut,
@@ -130,9 +129,13 @@ const TripsDetails = () => {
         {/* Botón reservar */}
         <button
           onClick={() => setIsModalOpen(true)}
-          className="mt-3 bg-blue-500 text-white px-4 py-2 rounded-lg"
+          disabled={!user}
+          className={`mt-3 px-5 py-2.5 bg-slate-900 hover:bg-slate-500 text-white rounded-md
+            ${user ? "px-5 py-2.5 bg-slate-900 hover:bg-slate-500" :
+              "flex items-center justify-between  bg-red-600/20 text-center px-3 h-10 rounded-sm"
+             } `}
         >
-          Reservar
+          {user ? "Reservar" : "Inicia sesión para reservar"}
         </button>
 
         {/* Modal */}

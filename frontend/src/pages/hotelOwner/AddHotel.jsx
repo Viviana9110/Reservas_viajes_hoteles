@@ -33,7 +33,7 @@ const AddHotel = () => {
       }
 
       const res = await axios.post(
-        "http://localhost:4000/api/hotels",
+        `${import.meta.env.VITE_API_URL}/hotels`,
         {
           name: hotel.name,
           location: {
@@ -50,9 +50,7 @@ const AddHotel = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`, // 👈 usamos token desde contexto
-          },
-          withCredentials: true,
-        }
+          }}
       );
 
       alert("✅ Hotel registrado correctamente");

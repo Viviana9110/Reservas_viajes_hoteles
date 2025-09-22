@@ -16,7 +16,7 @@ const AddRoom = () => {
   useEffect(() => {
     const fetchHotels = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/hotels");
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/hotels`);
         setHotels(res.data);
       } catch (err) {
         console.error("Error al cargar hoteles:", err);
@@ -39,14 +39,23 @@ const AddRoom = () => {
     try {
   const token = localStorage.getItem("token");
   await axios.post(
-    `http://localhost:4000/api/hotels/${room.hotelId}/rooms`,
+    `${import.meta.env.VITE_API_URL}/hotels/${room.hotelId}/rooms`,
     room,
     {
-      headers: { Authorization: `Bearer ${token}` },
-      withCredentials: true,
+      headers: { Authorization: `Bearer ${token}` }
     }
   );
   alert("Habitación añadida con éxito ✅");
+
+  setRoom({
+    hotelId: "",
+    roomNumber: "",
+    type: "",
+    pricePerNight: "",
+    capacity: "",
+    description: "",
+
+  })
 } catch (error) {
   console.error("Error al añadir habitación:", error.response?.data || error.message);
   alert("Error al añadir habitación ❌");

@@ -8,28 +8,7 @@ const ListRoom = () => {
 
   return (
     <>
-     {/* <div className="p-6 bg-white rounded-xl shadow-md">
-      <h2 className="text-2xl font-semibold mb-4">Lista de Habitaciones</h2>
-      <table className="w-full border-collapse border border-gray-200">
-        <thead>
-          <tr className="bg-gray-100 text-left">
-            <th className="p-2 border">Número</th>
-            <th className="p-2 border">Tipo</th>
-            <th className="p-2 border">Precio</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rooms.map((room, index) => (
-            <tr key={index} className="hover:bg-gray-50">
-              <td className="p-2 border">{room.number}</td>
-              <td className="p-2 border">{room.type}</td>
-              <td className="p-2 border">${room.price}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div> */}
-
+     
     <div className="flex-1 py-10 flex flex-col justify-between">
             <div className="w-full md:p-10 p-4">
                 <h2 className="pb-4 text-lg font-medium">Lista de Habitaciones</h2>
