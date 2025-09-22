@@ -69,7 +69,7 @@ const FeaturedDestination = () => {
               
               <div className='flex items-center justify-between mt-4'>
                 <p><span className='text-xl text-gray-800'>${destino.price}</span></p>
-                <NavLink to={`/destination/${destino._id}`} className='px-4 py-2 text-sm font-medium border border-third rounded hover:bg-third transition-all cursor-pointer'>Reservar</NavLink>
+                <NavLink to={`/trips`} className='px-4 py-2 text-sm font-medium border border-slate-800 rounded hover:bg-slate-500 transition-all cursor-pointer'>Reservar</NavLink>
             </div>
             </div>
             
@@ -77,10 +77,10 @@ const FeaturedDestination = () => {
         ))}
       </div>
 
-      <button onClick={()=>{navigate('/rooms'); scrollTo(0,0)}} 
+      <NavLink onClick={()=>{navigate('/trips'); scrollTo(0,0)}} 
       className='my-16 px-4 py-2 text-sm font-medium border border-gray-300 rounded bg-white hover:bg-gray-50 transition-all cursor-pointer'>
         Ver Mas
-      </button>
+      </NavLink>
     </div>
   )
 }

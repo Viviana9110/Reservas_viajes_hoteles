@@ -55,16 +55,11 @@ const Trips = () => {
             <div className="mt-6 flex gap-3">
               <NavLink
                 to={`/trips/${trip._id}`}
-                className="flex-1 text-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 transition rounded-lg text-white shadow-md text-sm font-medium"
+                className="flex text-center px-5 py-2.5 bg-slate-900 hover:bg-slate-500 transition rounded-lg text-white shadow-md text-sm font-medium"
               >
                 Ver Más
               </NavLink>
-              <button
-                onClick={() => alert(`Reserva iniciada para: ${trip.name}`)}
-                className="flex-1 text-center px-5 py-2.5 bg-green-600 hover:bg-green-700 transition rounded-lg text-white shadow-md text-sm font-medium"
-              >
-                Reservar
-              </button>
+              
             </div>
           </div>
         ))}
