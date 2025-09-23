@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { assets, roomCommonData, tripsDummyData } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const TripsDetails = () => {
   const { id } = useParams();
@@ -27,7 +28,7 @@ const TripsDetails = () => {
   // Verificar disponibilidad
   const checkAvailability = async () => {
     if (!checkIn || !checkOut) {
-      setMessage("⚠️ Debes seleccionar fechas.");
+      toast.error("⚠️ Debes seleccionar fechas.");
       return;
     }
 
@@ -41,14 +42,14 @@ const TripsDetails = () => {
       const data = await res.json();
       if (res.ok && data.disponible) {
         setIsAvailable(true);
-        setMessage(data.message || "✅ Fechas disponibles, puedes reservar.");
+        toast.success(data.message || "✅ Fechas disponibles, puedes reservar.");
       } else {
         setIsAvailable(false);
-        setMessage(data.message || "❌ Ya tienes una reserva en estas fechas.");
+        toast.error(data.message || "❌ Ya tienes una reserva en estas fechas.");
       }
     } catch (error) {
       console.error("Error verificando disponibilidad", error);
-      setMessage("❌ Error al verificar disponibilidad.");
+      toast.error("❌ Error al verificar disponibilidad.");
     }
   };
 
@@ -69,14 +70,14 @@ const TripsDetails = () => {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage(data.message || "🎉 Reserva realizada con éxito");
+        toast.success(data.message || "🎉 Reserva realizada con éxito");
         setIsModalOpen(false);
       } else {
-        setMessage(data.message || "❌ No se pudo realizar la reserva.");
+        toast.error(data.message || "❌ No se pudo realizar la reserva.");
       }
     } catch (error) {
       console.error("Error creando reserva", error);
-      setMessage("❌ Error al crear reserva.");
+      toast.error("❌ Error al crear reserva.");
     }
   };
 

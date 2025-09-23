@@ -22,6 +22,8 @@ import AccessDenied from './pages/AccessDenied.jsx'; // 👈 nuevo import
 import Trips from './pages/Trips.jsx';
 import TripsDetails from './pages/TripsDetails.jsx';
 
+import { Toaster } from "react-hot-toast";
+
 export function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAppContext(); // 👈 en lugar de useAuth()
 
@@ -71,6 +73,9 @@ const App = () => {
       </div>
 
       {!isOwnerPath && <Footer />}
+
+      {/* 🔹 Toaster global */}
+      <Toaster position="top-right" reverseOrder={false} />
     </div>
   );
 };
