@@ -4,12 +4,16 @@ import {
   getAllBookingTrips,
   getBookingTripsByUser,
   deleteBookingTrip,
+  checkBookingTripDates, // 👈 nuevo controlador
 } from "../controllers/bookingTrip.controller.js";
 
 const router = express.Router();
 
 // Crear una reserva
 router.post("/", createBookingTrip);
+
+// Verificar disponibilidad de fechas (sin guardar)
+router.post("/check", checkBookingTripDates); // 👈 nueva ruta
 
 // Obtener todas las reservas
 router.get("/", getAllBookingTrips);

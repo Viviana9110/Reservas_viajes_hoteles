@@ -13,14 +13,25 @@ export const createBookingTrip = async (req, res) => {
       return res.status(400).json({ message: "Todos los campos son requeridos" });
     }
 
+    // Validar que checkIn < checkOut
+    if (new Date(checkIn) >= new Date(checkOut)) {
+      return res.status(400).json({ message: "La fecha de entrada debe ser menor a la de salida" });
+    }
+
     // Verificar si el usuario ya tiene una reserva para ese viaje en las mismas fechas
     const existing = await BookingTrip.findOne({
       user,
       trip,
       $or: [
-        { checkIn: { $lte: checkOut, $gte: checkIn } },
-        { checkOut: { $lte: checkOut, $gte: checkIn } }
-      ]
+        { checkIn: { $lte: new Date(checkOut), $gte: new Date(checkIn) } },
+        { checkOut: { $lte: new Date(checkOut), $gte: new Date(checkIn) } },
+        {
+          $and: [
+            { checkIn: { $lte: new Date(checkIn) } },
+            { checkOut: { $gte: new Date(checkOut) } },
+          ],
+        },
+      ],
     });
 
     if (existing) {
@@ -36,6 +47,46 @@ export const createBookingTrip = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: "Error al crear reserva", error: err.message });
+  }
+};
+
+/**
+ * Verificar disponibilidad sin crear reserva
+ */
+export const checkBookingTripDates = async (req, res) => {
+  try {
+    const { user, trip, checkIn, checkOut } = req.body;
+
+    if (!user || !trip || !checkIn || !checkOut) {
+      return res.status(400).json({ disponible: false, message: "Todos los campos son requeridos" });
+    }
+
+    if (new Date(checkIn) >= new Date(checkOut)) {
+      return res.status(400).json({ disponible: false, message: "La fecha de entrada debe ser menor a la de salida" });
+    }
+
+    const existing = await BookingTrip.findOne({
+      user,
+      trip,
+      $or: [
+        { checkIn: { $lte: new Date(checkOut), $gte: new Date(checkIn) } },
+        { checkOut: { $lte: new Date(checkOut), $gte: new Date(checkIn) } },
+        {
+          $and: [
+            { checkIn: { $lte: new Date(checkIn) } },
+            { checkOut: { $gte: new Date(checkOut) } },
+          ],
+        },
+      ],
+    });
+
+    if (existing) {
+      return res.json({ disponible: false, message: "Ya tienes una reserva en estas fechas" });
+    }
+
+    res.json({ disponible: true, message: "Fechas disponibles" });
+  } catch (err) {
+    res.status(500).json({ disponible: false, message: "Error al verificar", error: err.message });
   }
 };
 
