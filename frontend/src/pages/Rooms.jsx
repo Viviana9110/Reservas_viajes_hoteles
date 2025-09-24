@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
 
 const Rooms = () => {
@@ -7,6 +8,7 @@ const Rooms = () => {
   const { id } = useParams(); // id del hotel
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
+  
 
   // Modal
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -22,7 +24,7 @@ const Rooms = () => {
         const data = await res.json();
         setRooms(data);
       } catch (error) {
-        console.error("Error al cargar habitaciones", error);
+        toast.error("Error al cargar habitaciones", error);
       } finally {
         setLoading(false);
       }
@@ -34,7 +36,7 @@ const Rooms = () => {
   // ✅ Consultar disponibilidad
   const checkAvailability = async () => {
     if (!checkIn || !checkOut) {
-      alert("Por favor selecciona fechas de entrada y salida");
+      toast.error("⚠️ Por favor selecciona fechas de entrada y salida");
       return;
     }
 
@@ -48,7 +50,7 @@ const Rooms = () => {
       const data = await res.json();
       setRoomAvailability(data); // { available: true/false, message }
     } catch (error) {
-      console.error("Error al consultar disponibilidad", error);
+      toast.error("Error al consultar disponibilidad", error);
     } finally {
       setLoadingCheck(false);
     }
@@ -70,14 +72,15 @@ const Rooms = () => {
       });
 
       if (res.ok) {
-        alert("✅ Reserva confirmada");
+        toast.success("✅ Reserva confirmada");
         closeModal();
       } else {
         const errorData = await res.json();
-        alert("❌ " + (errorData.message || "Error al realizar la reserva"));
+        toast.error(data.message || "❌ Error al realizar la reserva.");
       }
     } catch (error) {
       console.error("Error en la reserva", error);
+      toast.error("❌ Error al verificar disponibilidad.");
     }
   };
 

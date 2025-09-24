@@ -28,7 +28,7 @@ const TripsDetails = () => {
   // Verificar disponibilidad
   const checkAvailability = async () => {
     if (!checkIn || !checkOut) {
-      toast.error("⚠️ Debes seleccionar fechas.");
+      toast.error("⚠️ Por favor selecciona fechas de entrada y salida");
       return;
     }
 
