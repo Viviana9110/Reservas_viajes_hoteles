@@ -125,7 +125,7 @@ const Navbar = () => {
           {user && (
             <>
               <NavLink
-                to="/"
+                to="/my-bookings"
                 onClick={() => setOpen(false)}
                 className="block"
               >
