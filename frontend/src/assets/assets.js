@@ -29,6 +29,10 @@ import roomImg2 from './roomImg2.png'
 import roomImg3 from './roomImg3.png'
 import roomImg4 from './roomImg4.png'
 import regImage from './regImage.png'
+import bogota from './bogota.jpg'
+import boyaca from './boyaca.jpg'
+import patrimonio from './patrimonio.jpg'
+import mexico from './mexico.jpg'
 import exclusiveOfferCardImg1 from "./exclusiveOfferCardImg1.png";
 import exclusiveOfferCardImg2 from "./exclusiveOfferCardImg2.png";
 import exclusiveOfferCardImg3 from "./exclusiveOfferCardImg3.png";
@@ -74,6 +78,7 @@ export const assets = {
     uploadArea,
     totalBookingIcon,
     totalRevenueIcon,
+
 }
 
 export const cities = [
@@ -168,9 +173,62 @@ export const tripsDummyData = [
     "description": "3 días de recorridos por museos, centros históricos y gastronomía.",
     "price": "750000",
     "days": "3",
+    "images": [bogota, roomImg2, roomImg3, roomImg4],
+},
+{
+    "_id": "68c86b968c87ba83fbdcb2354aa9ffa",
+    "name": "Plan Caribe",
+    "destination": "Cartagena, Colombia",
+    "description": "Paquete de 5 días todo incluido en Cartagena",
+    "price": "750000",
+    "days": "3",
     "images": [roomImg1, roomImg2, roomImg3, roomImg4],
 },
-
+{
+    "_id": "68c882893fbdcb2354aaa001",
+    "name": "Pueblos Patrimonio de Colombia",
+    "destination": "Pueblos Patrimonio",
+    "description": "Descubre durante 10 días, los lugares más increíbles de Colombia.",
+    "price": "750000",
+    "days": "3",
+    "images": [patrimonio, roomImg2, roomImg3, roomImg4],
+},
+{
+    "_id": "68c882ee3fbdcb2354aaa003",
+    "name": "Sorprendente Boyacá",
+    "destination": "Boyaca",
+    "description": "Descubre durante 5 días, los lugares más increíbles de Boyaca.",
+    "price": "750000",
+    "days": "3",
+    "images": [boyaca, roomImg2, roomImg3, roomImg4],
+},
+{
+    "_id": "68c8838d3fbdcb2354aaa005",
+    "name": "Mexico y Cancún",
+    "destination": "Boyaca",
+    "description": "Descubre durante 9 días, los lugares más increíbles de Mexico.",
+    "price": "9900000",
+    "days": "9",
+    "images": [mexico, roomImg2, roomImg3, roomImg4],
+},
+{
+    "_id": "68c8841c3fbdcb2354aaa007",
+    "name": "Hacienda Napoles",
+    "destination": "Doradal",
+    "description": "Descubre durante 3 días, los lugares más increíbles de Doradal.",
+    "price": "990000",
+    "days": "3",
+    "images": [roomImg1, roomImg2, roomImg3, roomImg4],
+},
+{
+    "_id": "68c884603fbdcb2354aaa009",
+    "name": "Represa La Miel",
+    "destination": "Norcacia",
+    "description": "Descubre durante 3 días, los lugares más increíbles de Norcacia.",
+    "price": "990000",
+    "days": "3",
+    "images": [roomImg1, roomImg2, roomImg3, roomImg4],
+},
 ]
 
 // Rooms Dummy Data

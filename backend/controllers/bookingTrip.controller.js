@@ -1,5 +1,6 @@
 // controllers/bookingTripController.js
 import BookingTrip from "../models/BookingTrips.js";
+import nodemailer from "nodemailer"
 
 /**
  * Crear una reserva de viaje
@@ -40,11 +41,50 @@ export const createBookingTrip = async (req, res) => {
 
     const newBooking = new BookingTrip({ user, trip, checkIn, checkOut });
     await newBooking.save();
+    await newBooking.populate("trip user");
 
-    res.status(201).json({
-      message: "Reserva creada exitosamente",
-      booking: await newBooking.populate("trip user"),
+   // ✅ Configurar nodemailer (si tienes EMAIL_USER y EMAIL_PASS en .env)
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
     });
+
+    // ✅ Opciones del correo
+    const mailOptions = {
+      from: `"Tour Colombia" <${process.env.EMAIL_USER}>`,
+      to: newBooking.user.email, // usamos el email del usuario de la reserva
+      subject: "Confirmación de tu reserva ✈️",
+      html: `
+        <h2>¡Gracias por tu reserva!</h2>
+        <p>Hola <strong>${newBooking.user.name}</strong>,</p>
+        <p>Tu reserva fue confirmada:</p>
+        <ul>
+          <li>Destino: ${newBooking.trip.name ?? trip}</li>
+          <li>Check In: ${checkIn}</li>
+          <li>Check Out: ${checkOut}</li>
+        </ul>
+        <p>Nos alegra que viajes con <b>Tour Colombia</b> 🌎</p>
+      `,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+    } catch (emailErr) {
+      console.error("❌ Error al enviar correo:", emailErr.message);
+      // No rompemos el flujo si falla el correo
+    }
+
+    // ✅ Solo una respuesta al cliente
+    res.status(201).json({
+      success: true,
+      message: "Reserva creada exitosamente",
+      booking: newBooking,
+    });
+
+
   } catch (err) {
     res.status(500).json({ message: "Error al crear reserva", error: err.message });
   }
