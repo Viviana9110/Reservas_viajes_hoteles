@@ -23,6 +23,7 @@ import Trips from './pages/Trips.jsx';
 import TripsDetails from './pages/TripsDetails.jsx';
 
 import { Toaster } from "react-hot-toast";
+import SearchResults from './pages/SearchResults.jsx';
 
 export function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAppContext(); // 👈 en lugar de useAuth()
@@ -49,6 +50,7 @@ const App = () => {
       <div className={`${isOwnerPath ? "" : "px-0"}`}>
         <Routes>
           <Route path='/' element={<Home />} />
+          <Route path="/search" element={<SearchResults/>} />
           <Route path='/rooms' element={<AllRooms />} />
           <Route path="/rooms/:id" element={<Rooms />} />
           <Route path='/my-bookings' element={<MyBookings />} />
