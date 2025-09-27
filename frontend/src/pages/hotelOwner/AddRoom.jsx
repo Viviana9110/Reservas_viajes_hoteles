@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Title from '../../components/Title'
 import axios from "axios";
 
 const AddRoom = () => {
@@ -6,7 +7,7 @@ const AddRoom = () => {
   const [room, setRoom] = useState({
     hotelId: "",
     roomNumber: "",
-    type: "single",
+    type: "",
     pricePerNight: "",
     description: "",
     capacity: 1,
@@ -64,10 +65,13 @@ const AddRoom = () => {
 
   return (
     <div className="py-10 flex flex-col justify-between bg-white">
+
       <form
         onSubmit={handleSubmit}
         className="md:p-10 p-4 space-y-5 max-w-lg"
       >
+        <Title align='left' font='outfit' title='Add Room' subTitle='Fill in the details carefully and accurate room details, pricing, and amenities, to enhance the user booking experience.' />
+
         {/* 🔹 Select con hoteles */}
         <div className="w-full flex flex-col gap-1">
           <label className="text-base font-medium" htmlFor="hotelId">
@@ -114,6 +118,7 @@ const AddRoom = () => {
             <option value="">Seleccione</option>
             <option value="single">Single</option>
             <option value="double">Double</option>
+            <option value="luxury">Luxury</option>
             <option value="suite">Suite</option>
           </select>
         </div>

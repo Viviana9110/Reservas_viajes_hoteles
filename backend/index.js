@@ -14,6 +14,8 @@ import packageRoutes from "./routes/package.routes.js";
 
 import searchRoutes from "./routes/search.routes.js";
 
+import dashboardRoutes from "./routes/dashboard.routes.js";
+
 import { notFound, onError } from "./middlewares/error.js";
 import cookieParser from "cookie-parser";
 
@@ -45,6 +47,7 @@ app.use("/api/booking-trips", bookingTripRoutes); // rutas de reservas
 
 app.use("/api/search", searchRoutes);
 
+app.use("/api/dashboard", dashboardRoutes);
 
 // 🔹 Manejo de errores
 app.use(notFound);

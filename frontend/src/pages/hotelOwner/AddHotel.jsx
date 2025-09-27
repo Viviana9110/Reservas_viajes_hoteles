@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Title from '../../components/Title'
 import { useAppContext } from "../../context/AppContext.jsx";
 
 const AddHotel = () => {
@@ -86,6 +87,8 @@ const AddHotel = () => {
         className="md:p-10 p-4 space-y-5 max-w-lg"
         onSubmit={handleSubmit}
       >
+      <Title align='left' font='outfit' title='Add Hotel' subTitle='Fill in the details carefully and accurate room details, pricing, and amenities, to enhance the user booking experience.' />
+
         {/* Nombre del hotel */}
         <div className="flex flex-col gap-1 max-w-md">
           <label className="text-base font-medium" htmlFor="hotel-name">

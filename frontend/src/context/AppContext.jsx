@@ -19,6 +19,13 @@ export const AppContextProvider = ({ children }) => {
   const [loadingTrips, setLoadingTrips] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
 
+  const [dashboardStats, setDashboardStats] = useState({
+  totalHotels: 0,
+  totalRooms: 0,
+  totalPackages: 0,
+  activeBookings: 0,
+});
+
   // ✅ Cargar usuario al iniciar
   const fetchUser = async () => {
     try {
@@ -129,6 +136,15 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const fetchDashboardStats = async () => {
+  try {
+    const { data } = await axios.get("/dashboard");
+    setDashboardStats(data);
+  } catch (error) {
+    console.error("Error al obtener estadísticas:", error.response?.data || error.message);
+  }
+};
+
   useEffect(() => {
     fetchHotels();
     fetchTrips();
@@ -155,6 +171,8 @@ export const AppContextProvider = ({ children }) => {
     loadingTrips,
     loginUser,
     registerUser,
+    dashboardStats,
+  fetchDashboardStats,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

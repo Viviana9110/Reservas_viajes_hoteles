@@ -8,25 +8,47 @@ const Sidebar = () => {
     </svg>
   );
 
-  const overviewicon = (
-    <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-      <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M7.111 20A3.111 3.111 0 0 1 4 16.889v-12C4 4.398 4.398 4 4.889 4h4.444a.89.89 0 0 1 .89.889v12A3.111 3.111 0 0 1 7.11 20Zm0 0h12a.889.889 0 0 0 .889-.889v-4.444a.889.889 0 0 0-.889-.89h-4.389a.889.889 0 0 0-.62.253l-3.767 3.665a.933.933 0 0 0-.146.185c-.868 1.433-1.581 1.858-3.078 2.12Zm0-3.556h.009m7.933-10.927 3.143 3.143a.889.889 0 0 1 0 1.257l-7.974 7.974v-8.8l3.574-3.574a.889.889 0 0 1 1.257 0Z" />
-    </svg>
+ const addhotel = (
+  <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M8 21V9a4 4 0 018 0v12m-6 0h4" />
+  <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18" />
+</svg>
+
+ );
+
+  const addhabitacion = (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M4 10V6a2 2 0 012-2h12a2 2 0 012 2v4M4 10v10h16V10" />
+</svg>
+
+  );
+  const habitaciones = (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l9-9 9 9M4 10v10h16V10" />
+</svg>
+
   );
 
-  const chaticon = (
-    <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 9h5m3 0h2M7 12h2m3 0h5M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-6.616a1 1 0 0 0-.67.257l-2.88 2.592A.5.5 0 0 1 8 18.477V17a1 1 0 0 0-1-1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
-    </svg>
+  const addpaquete = (
+   <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18M12 3v18" />
+</svg>
   );
+
+  const paquete = (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 0v20m10-10H2" />
+</svg>
+
+  )
 
   const sidebarLinks = [
     { name: "Dashboard", path: "/owner", icon: dashboardicon },
-    { name: "Añadir Hotel", path: "/owner/add-hotel", icon: overviewicon },
-    { name: "Añadir Habitacion", path: "/owner/add-room", icon: overviewicon },
-    { name: "Añadir Paquete Turístico", path: "/owner/add-package", icon: overviewicon },
-    { name: "Habitaciones", path: "/owner/list-room", icon: chaticon },
-    { name: "Paquetes Turísticos", path: "/owner/list-packages", icon: chaticon },
+    { name: "Añadir Hotel", path: "/owner/add-hotel", icon: addhotel },
+    { name: "Añadir Habitacion", path: "/owner/add-room", icon: addhabitacion },
+    { name: "Añadir Paquete Turístico", path: "/owner/add-package", icon: addpaquete },
+    { name: "Habitaciones", path: "/owner/list-room", icon: habitaciones },
+    { name: "Paquetes Turísticos", path: "/owner/list-packages", icon: paquete },
 
   ];
 

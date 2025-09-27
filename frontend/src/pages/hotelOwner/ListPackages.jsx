@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
+import Title from '../../components/Title'
 import axios from "axios";
 
 const ListPackages = () => {
@@ -10,7 +11,8 @@ const ListPackages = () => {
   return (
     <div className="flex-1 py-10 flex flex-col justify-between">
       <div className="w-full md:p-10 p-4">
-        <h2 className="pb-4 text-lg font-medium">Paquetes Turísticos</h2>
+        <Title align='left' font='outfit' title='Paquetes Turísticos' subTitle='Fill in the details carefully and accurate room details, pricing, and amenities, to enhance the user booking experience.' />
+
         <div className="flex flex-col items-center max-w-4xl w-full overflow-hidden rounded-md bg-white border border-gray-500/20">
           <table className="md:table-auto table-fixed w-full overflow-hidden">
             <thead className="text-gray-900 text-sm text-left">

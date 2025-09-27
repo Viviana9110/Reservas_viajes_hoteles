@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Title from '../../components/Title'
 import axios from "axios";
 
 const AddPackage = () => {
@@ -33,6 +34,8 @@ const AddPackage = () => {
         onSubmit={handleSubmit}
         className="md:p-10 p-4 space-y-5 max-w-lg"
       >
+        <Title align='left' font='outfit' title='Add Paquete Turístico' subTitle='Fill in the details carefully and accurate room details, pricing, and amenities, to enhance the user booking experience.' />
+
         <div className="flex flex-col gap-1">
           <label className="text-base font-medium">Nombre</label>
           <input
