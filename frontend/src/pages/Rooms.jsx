@@ -8,7 +8,8 @@ const Rooms = () => {
   const { id } = useParams(); // id del hotel
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
+   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";  
 
   // Modal
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -20,7 +21,7 @@ const Rooms = () => {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/hoteles/${id}/rooms`);
+        const res = await fetch(`${API_URL}/hoteles/${id}/rooms`);
         const data = await res.json();
         setRooms(data);
       } catch (error) {
@@ -42,7 +43,7 @@ const Rooms = () => {
 
     try {
       setLoadingCheck(true);
-      const res = await fetch("http://localhost:4000/api/bookings/availability", {
+      const res = await fetch(`${API_URL}/bookings/availability`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomId: selectedRoom._id, checkIn, checkOut }),
@@ -59,7 +60,7 @@ const Rooms = () => {
   // ✅ Reservar habitación
   const handleReservation = async () => {
     try {
-      const res = await fetch("http://localhost:4000/api/bookings", {
+      const res = await fetch(`${API_URL}/bookings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
