@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
@@ -8,31 +8,6 @@ import dashboardIcon from "../../assets/dashboardIcon.svg";
 import listIcon from "../../assets/listIcon.svg";
 import totalBookingIcon from "../../assets/totalBookingIcon.svg";
 import totalRevenueIcon from "../../assets/totalRevenueIcon.svg";
-
-function useCountUp(target, enabled) {
-  const [count, setCount] = useState(0);
-  const started = useRef(false);
-
-  useEffect(() => {
-    if (!enabled || started.current) return;
-    started.current = true;
-    const duration = 1000;
-    const steps = 30;
-    let current = 0;
-    const timer = setInterval(() => {
-      current += target / steps;
-      if (current >= target) {
-        setCount(target);
-        clearInterval(timer);
-      } else {
-        setCount(Math.round(current));
-      }
-    }, duration / steps);
-    return () => clearInterval(timer);
-  }, [target, enabled]);
-
-  return count;
-}
 
 const statsConfig = [
   { title: "Total Hoteles", gradient: "from-primary to-emerald-deep", icon: dashboardIcon, key: "totalHotels" },
@@ -60,9 +35,7 @@ const Dashboard = () => {
   const { dashboardStats, fetchDashboardStats } = useAppContext();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [visible, setVisible] = useState(false);
   const [extendedStats, setExtendedStats] = useState(null);
-  const statsRef = useRef(null);
 
   const load = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -84,25 +57,6 @@ const Dashboard = () => {
   useEffect(() => {
     load();
   }, [load]);
-
-  useEffect(() => {
-    const el = statsRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold: 0.3 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const countHotels = useCountUp(dashboardStats?.totalHotels ?? 0, visible && !loading);
-  const countRooms = useCountUp(dashboardStats?.totalRooms ?? 0, visible && !loading);
-  const countPackages = useCountUp(dashboardStats?.totalPackages ?? 0, visible && !loading);
-  const countReservations = useCountUp(dashboardStats?.activeReservations ?? 0, visible && !loading);
-  const statsValues = { totalHotels: countHotels, totalRooms: countRooms, totalPackages: countPackages, activeReservations: countReservations };
 
   const isEmpty = !loading && dashboardStats?.totalHotels === 0 && dashboardStats?.totalRooms === 0 && dashboardStats?.totalPackages === 0;
 
@@ -179,7 +133,7 @@ const Dashboard = () => {
         </motion.div>
       ) : (
         <>
-          <div ref={statsRef}>
+          <div>
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
                 {[1, 2, 3, 4].map((i) => (
@@ -187,39 +141,36 @@ const Dashboard = () => {
                 ))}
               </div>
             ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4 }}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8"
-              >
-                {statsConfig.map((stat) => (
-                  <div
-                    key={stat.key}
-                    className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${stat.gradient} p-5 text-white shadow-md hover:shadow-lg transition-shadow group`}
-                  >
-                    <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-                    <div className="flex items-start justify-between relative">
-                      <div>
-                        <p className="text-sm font-medium text-white/80">
-                          {stat.title}
-                        </p>
-                        <p className="text-3xl font-bold mt-1 tabular-nums">
-                          {statsValues[stat.key]}
-                        </p>
-                      </div>
-                      <div className="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center backdrop-blur-sm">
-                        <img
-                          src={stat.icon}
-                          alt=""
-                          className="w-5 h-5 invert brightness-200"
-                        />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+                {statsConfig.map((stat) => {
+                  const value = dashboardStats?.[stat.key] ?? 0;
+                  return (
+                    <div
+                      key={stat.key}
+                      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${stat.gradient} p-5 text-white shadow-md hover:shadow-lg transition-shadow group`}
+                    >
+                      <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+                      <div className="flex items-start justify-between relative">
+                        <div>
+                          <p className="text-sm font-medium text-white/80">
+                            {stat.title}
+                          </p>
+                          <p className="text-3xl font-bold mt-1 tabular-nums">
+                            {value}
+                          </p>
+                        </div>
+                        <div className="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center backdrop-blur-sm">
+                          <img
+                            src={stat.icon}
+                            alt=""
+                            className="w-5 h-5 invert brightness-200"
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </motion.div>
+                  );
+                })}
+              </div>
             )}
           </div>
 
