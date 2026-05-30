@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
@@ -37,9 +37,25 @@ const Dashboard = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [extendedStats, setExtendedStats] = useState(null);
 
-  const load = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      await fetchDashboardStats();
+      try {
+        const { default: axios } = await import("axios");
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_API_URL}/dashboard`
+        );
+        setExtendedStats(data);
+      } catch {
+        // extended data is optional
+      }
+      setLoading(false);
+    })();
+  }, [fetchDashboardStats]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
     await fetchDashboardStats();
     try {
       const { default: axios } = await import("axios");
@@ -50,13 +66,8 @@ const Dashboard = () => {
     } catch {
       // extended data is optional
     }
-    if (isRefresh) setRefreshing(false);
-    else setLoading(false);
-  }, [fetchDashboardStats]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+    setRefreshing(false);
+  };
 
   const isEmpty = !loading && dashboardStats?.totalHotels === 0 && dashboardStats?.totalRooms === 0 && dashboardStats?.totalPackages === 0;
 
@@ -83,7 +94,7 @@ const Dashboard = () => {
           </p>
         </div>
         <button
-          onClick={() => load(true)}
+          onClick={handleRefresh}
           disabled={refreshing}
           className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-coffee-light hover:text-coffee border border-gray-200 rounded-full hover:bg-gray-50 transition cursor-pointer disabled:opacity-50"
         >

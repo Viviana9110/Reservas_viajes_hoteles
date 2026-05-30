@@ -137,14 +137,14 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = useCallback(async () => {
   try {
     const { data } = await axios.get("/dashboard");
     setDashboardStats(data);
   } catch (error) {
     console.error("Error al obtener estadísticas:", error.response?.data || error.message);
   }
-};
+}, []);
 
   useEffect(() => {
     fetchHotels();
