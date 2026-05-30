@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import mongoose from "mongoose";
 import connectDB from "./config/db.js";
 
 import authRoutes from "./routes/auth.routes.js";
@@ -23,8 +24,6 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-connectDB();
-
 const allowedOrigins = [
   "http://localhost:5173",
   "https://reservas-viajes-hoteles-front.vercel.app",
@@ -39,7 +38,38 @@ app.use(
   })
 );
 
+app.use(async (req, res, next) => {
+  if (!mongoose.connection.readyState) {
+    try {
+      await connectDB();
+    } catch {
+      return res.status(503).json({ message: "Base de datos no disponible" });
+    }
+  }
+  next();
+});
+
 app.get("/", (req, res) => res.send("API is working 🚀"));
+
+app.get("/api/debug", async (req, res) => {
+  const state = mongoose.connection.readyState;
+  const stateMap = { 0: "disconnected", 1: "connected", 2: "connecting", 3: "disconnecting" };
+  let userCount = -1;
+  if (state === 1) {
+    try {
+      const User = mongoose.model("User");
+      userCount = await User.countDocuments();
+    } catch {
+      userCount = -2;
+    }
+  }
+  res.json({
+    mongooseState: stateMap[state] ?? state,
+    databaseName: mongoose.connection.db?.databaseName || null,
+    userCount,
+    mongodbUri: (process.env.MONGODB_URI || "").slice(0, 40) + "...",
+  });
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/hotels", hotelsRoutes);
