@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { NavLink, useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useAppContext } from "../context/AppContext";
 import { SkeletonCard } from "../components/Skeleton";
 import EmptyState from "../components/EmptyState";
@@ -59,6 +59,7 @@ const sortOptions = [
 
 const Trips = () => {
   const { trips, loadingTrips } = useAppContext();
+  const [searchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("default");
   const [countVisible, setCountVisible] = useState(false);
@@ -66,6 +67,14 @@ const Trips = () => {
 
   const allDestinations = ["Todos", ...new Set(trips.map((t) => t.destination).filter(Boolean))];
   const [selectedDest, setSelectedDest] = useState("Todos");
+
+  useEffect(() => {
+    const destParam = searchParams.get("dest");
+    if (destParam && trips.length > 0) {
+      const match = allDestinations.find((d) => d.toLowerCase().includes(destParam.toLowerCase()));
+      if (match) setSelectedDest(match);
+    }
+  }, [searchParams, trips.length]);
 
   let filtered = trips.filter((t) => {
     const matchSearch = !search || t.name?.toLowerCase().includes(search.toLowerCase()) || t.destination?.toLowerCase().includes(search.toLowerCase());

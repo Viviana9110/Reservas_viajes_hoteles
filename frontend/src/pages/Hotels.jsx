@@ -55,7 +55,7 @@ const GLARE_COLORS = [
 ];
 
 const Hotels = () => {
-  const { hotels, loadingHotels } = useAppContext();
+  const { hotels, trips, loadingHotels } = useAppContext();
   const [search, setSearch] = useState("");
   const [selectedCity, setSelectedCity] = useState("Todas");
   const [countVisible, setCountVisible] = useState(false);
@@ -172,10 +172,21 @@ const Hotels = () => {
               <motion.div key={hotel._id} variants={item}>
                 <TiltCard tiltDegree={6}>
                   <Link to={`/rooms/${hotel._id}`} className="block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-lg transition-shadow">
-                    <div className={`h-44 bg-gradient-to-br ${bgGradient} flex items-center justify-center relative overflow-hidden`}>
-                      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_50%,_white_0%,_transparent_70%)]" />
-                      <span className="text-3xl font-bold text-white/30 drop-shadow-lg select-none">{getInitials(hotel.name)}</span>
-                      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/20 to-transparent" />
+                    <div className="h-44 relative overflow-hidden bg-gray-100">
+                      {hotel.images?.[0] ? (
+                        <img
+                          src={hotel.images[0]}
+                          alt={hotel.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          onError={(e) => { e.target.style.display = "none"; e.target.parentElement.classList.add("flex", "items-center", "justify-center"); const s = document.createElement("span"); s.className = "text-3xl font-bold text-gray-300 select-none"; s.textContent = getInitials(hotel.name); e.target.parentElement.appendChild(s); }}
+                        />
+                      ) : (
+                        <div className={`w-full h-full bg-gradient-to-br ${bgGradient} flex items-center justify-center`}>
+                          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_50%,_white_0%,_transparent_70%)]" />
+                          <span className="text-3xl font-bold text-white/30 drop-shadow-lg select-none">{getInitials(hotel.name)}</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
                       <div className="absolute top-3 right-3 flex gap-1.5">
                         {hotel.amenities?.slice(0, 3).map((a, i) => (
                           <span key={i} className="w-2 h-2 rounded-full bg-white/60 shadow-sm" title={a} />
@@ -210,11 +221,24 @@ const Hotels = () => {
                         </div>
                       )}
                       <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                        <Link to={`/rooms/${hotel._id}`} className="text-xs text-gray-400 hover:text-primary flex items-center gap-1.5 transition-colors">
                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                           Ver Habitaciones
-                        </span>
-                        <svg className="w-4 h-4 text-gray-300 group-hover:text-primary group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                        </Link>
+                        {(() => {
+                          const city = hotel.location?.city;
+                          const matchCount = city ? trips.filter((t) => t.destination?.toLowerCase().includes(city.toLowerCase())).length : 0;
+                          if (!matchCount) return null;
+                          return (
+                            <Link
+                              to={`/trips?dest=${encodeURIComponent(city)}`}
+                              className="text-xs font-medium text-primary hover:text-primary-dark flex items-center gap-1 transition-colors"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                              {matchCount} paquete{matchCount > 1 ? "s" : ""} en {city}
+                            </Link>
+                          );
+                        })()}
                       </div>
                     </div>
                   </Link>

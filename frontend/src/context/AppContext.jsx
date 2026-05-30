@@ -1,5 +1,5 @@
 // context/AppContext.jsx
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -23,11 +23,11 @@ export const AppContextProvider = ({ children }) => {
   totalHotels: 0,
   totalRooms: 0,
   totalPackages: 0,
-  activeBookings: 0,
+  activeReservations: 0,
 });
 
   // ✅ Cargar usuario al iniciar
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     try {
       if (!token) {
         setUser(null);
@@ -44,11 +44,11 @@ export const AppContextProvider = ({ children }) => {
     } finally {
       setLoadingUser(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchUser();
-  }, [token]);
+  }, [fetchUser]);
 
   // ✅ Login
   const loginUser = async (email, password) => {
@@ -99,7 +99,7 @@ export const AppContextProvider = ({ children }) => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
       }
-    } catch (error) {
+    } catch {
       console.warn("Logout falló en el servidor, limpiando sesión local...");
     } finally {
       // limpiar sesión local siempre

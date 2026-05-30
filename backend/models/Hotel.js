@@ -11,6 +11,7 @@ const hotelSchema = new Schema(
     description: { type: String },
     amenities: [{ type: String }], // opcional
     pricePerNight: { type: Number }, // opcional
+    images: [{ type: String }],
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
