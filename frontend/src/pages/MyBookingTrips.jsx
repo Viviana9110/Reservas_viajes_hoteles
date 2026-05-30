@@ -4,6 +4,8 @@ import { useAppContext } from "../context/AppContext";
 import { SkeletonRow } from "../components/Skeleton";
 import EmptyState from "../components/EmptyState";
 import { assets } from "../assets/assets";
+import toast from "react-hot-toast";
+import { confirmCancel } from "../utils/confirmCancel";
 
 const container = {
   hidden: {}, visible: { transition: { staggerChildren: 0.06 } },
@@ -42,13 +44,16 @@ const MyBookingTrips = () => {
   }, [user]);
 
   const cancelBooking = async (bookingId) => {
-    if (!window.confirm("¿Seguro que quieres cancelar esta reserva?")) return;
+    const confirmed = await confirmCancel("Esta acción no se puede deshacer.");
+    if (!confirmed) return;
     try {
       setCanceling(bookingId);
       const res = await fetch(`${import.meta.env.VITE_API_URL}/booking-trips/${bookingId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Error al cancelar");
       setBookings((prev) => prev.filter((b) => b._id !== bookingId));
+      toast.success("Reserva cancelada correctamente");
     } catch (err) {
+      toast.error("Error al cancelar la reserva");
       console.error("Error cancelando reserva:", err);
     } finally {
       setCanceling(null);

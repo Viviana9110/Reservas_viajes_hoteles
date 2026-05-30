@@ -20,7 +20,7 @@ const AddPackage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/packages`, paquete);
+      await axios.post(`${import.meta.env.VITE_API_URL}/trips`, paquete);
       toast.success("Paquete añadido con éxito");
       setPaquete({ name: "", destination: "", description: "", price: "", days: "" });
     } catch {
