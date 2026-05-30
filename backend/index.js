@@ -54,20 +54,27 @@ app.get("/", (req, res) => res.send("API is working 🚀"));
 app.get("/api/debug", async (req, res) => {
   const state = mongoose.connection.readyState;
   const stateMap = { 0: "disconnected", 1: "connected", 2: "connecting", 3: "disconnecting" };
-  let userCount = -1;
+  let counts = {};
   if (state === 1) {
     try {
-      const User = mongoose.model("User");
-      userCount = await User.countDocuments();
+      for (const name of ["User", "Hotel", "Room", "Package", "Destination", "Booking", "BookingTrips", "CustomTrip"]) {
+        try {
+          const model = mongoose.model(name);
+          counts[name] = await model.countDocuments();
+        } catch {
+          counts[name] = "modelo no registrado";
+        }
+      }
     } catch {
-      userCount = -2;
+      counts = { error: "error al contar" };
     }
   }
   res.json({
     mongooseState: stateMap[state] ?? state,
     databaseName: mongoose.connection.db?.databaseName || null,
-    userCount,
-    mongodbUri: (process.env.MONGODB_URI || "").slice(0, 40) + "...",
+    collections: await mongoose.connection.db?.listCollections().toArray().then(c => c.map(x => x.name)).catch(() => []),
+    counts,
+    mongodbUri: (process.env.MONGODB_URI || "").slice(0, 50) + "...",
   });
 });
 
