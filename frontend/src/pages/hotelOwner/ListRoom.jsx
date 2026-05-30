@@ -1,53 +1,130 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { SkeletonRow } from "../../components/Skeleton";
+import EmptyState from "../../components/EmptyState";
+import { assets } from "../../assets/assets";
+
+const container = {
+  hidden: {}, visible: { transition: { staggerChildren: 0.05 } },
+};
+
+const item = {
+  hidden: { opacity: 0, x: -10 }, visible: { opacity: 1, x: 0 },
+};
 
 const ListRoom = () => {
-  const [rooms, setRooms] = useState([
-    { number: "101", type: "Suite", price: 120 },
-    { number: "102", type: "Estándar", price: 80 },
-  ]);
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/hotels`);
+        if (!res.ok) throw new Error();
+        const hotels = await res.json();
+        const allRooms = [];
+        for (const hotel of hotels) {
+          const r = await fetch(`${import.meta.env.VITE_API_URL}/hoteles/${hotel._id}/rooms`);
+          if (r.ok) {
+            const data = await r.json();
+            allRooms.push(...data.map((rm) => ({ ...rm, hotelName: hotel.name })));
+          }
+        }
+        setRooms(allRooms);
+      } catch {
+        console.error("Error cargando habitaciones");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRooms();
+  }, []);
+
+  const toggleAvailability = async (roomId, current) => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/rooms/${roomId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isAvailable: !current }),
+      });
+      setRooms((prev) => prev.map((r) => r._id === roomId ? { ...r, isAvailable: !current } : r));
+    } catch {
+      console.error("Error al cambiar disponibilidad");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="py-6">
+        <div className="mb-6">
+          <div className="skeleton h-8 w-56 mb-2" />
+          <div className="skeleton h-4 w-72" />
+        </div>
+        {[1,2,3].map(i => <SkeletonRow key={i} />)}
+      </div>
+    );
+  }
 
   return (
-    <>
-     
-    <div className="flex-1 py-10 flex flex-col justify-between">
-            <div className="w-full md:p-10 p-4">
-                <h2 className="pb-4 text-lg font-medium">Lista de Habitaciones</h2>
-                <div className="flex flex-col items-center max-w-4xl w-full overflow-hidden rounded-md bg-white border border-gray-500/20">
-                    <table className="md:table-auto table-fixed w-full overflow-hidden">
-                        <thead className="text-gray-900 text-sm text-left">
-                            <tr>
-                                <th className="px-4 py-3 font-semibold truncate">N°</th>
-                                <th className="px-4 py-3 font-semibold truncate">Tipo</th>
-                                <th className="px-4 py-3 font-semibold truncate hidden md:block">Precio</th>
-                                <th className="px-4 py-3 font-semibold truncate">Disponible</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-sm text-gray-500">
-                            {rooms.map((room, index) => (
-                                <tr key={index} className="border-t border-gray-500/20">
-                                    <td className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate">
-                                        
-                                        <span className="truncate max-sm:hidden w-full">{room.number}</span>
-                                    </td>
-                                    <td className="px-4 py-3">{room.type}</td>
-                                    <td className="px-4 py-3 max-sm:hidden">${room.price}</td>
-                                    <td className="px-4 py-3">
-                                        <label className="relative inline-flex items-center cursor-pointer text-gray-900 gap-3">
-                                            <input type="checkbox" className="sr-only peer" />
-                                            <div className="w-12 h-7 bg-slate-300 rounded-full peer peer-checked:bg-blue-600 transition-colors duration-200"></div>
-                                            <span className="dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-5"></span>
-                                        </label>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    
-    </>
-   
+    <div className="py-6">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">Lista de Habitaciones</h2>
+        <p className="text-sm text-gray-500 mt-1">Administra las habitaciones de tus hoteles.</p>
+      </motion.div>
+
+      {rooms.length > 0 ? (
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="visible"
+          className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+        >
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 text-left text-sm font-semibold text-gray-700">
+                <th className="px-5 py-3.5">Hotel</th>
+                <th className="px-5 py-3.5">N°</th>
+                <th className="px-5 py-3.5 hidden sm:table-cell">Tipo</th>
+                <th className="px-5 py-3.5 hidden md:table-cell">Precio</th>
+                <th className="px-5 py-3.5">Disponible</th>
+              </tr>
+            </thead>
+            <AnimatePresence>
+              <tbody className="text-sm text-gray-600">
+                {rooms.map((room) => (
+                  <motion.tr
+                    key={room._id}
+                    variants={item}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-5 py-4 font-medium">{room.hotelName || "—"}</td>
+                    <td className="px-5 py-4">{room.roomNumber || "—"}</td>
+                    <td className="px-5 py-4 hidden sm:table-cell capitalize">{room.type || "—"}</td>
+                    <td className="px-5 py-4 hidden md:table-cell">
+                      <span className="font-medium">${room.pricePerNight}</span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={room.isAvailable !== false}
+                          onChange={() => toggleAvailability(room._id, room.isAvailable)}
+                        />
+                        <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-primary transition-colors after:content-[''] after:absolute after:left-0.5 after:top-0.5 after:w-5 after:h-5 after:bg-white after:rounded-full after:shadow-sm after:transition-transform peer-checked:after:translate-x-5" />
+                      </label>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </AnimatePresence>
+          </table>
+        </motion.div>
+      ) : (
+        <EmptyState title="Sin habitaciones" description="No hay habitaciones registradas todavía." icon={assets.addIcon} />
+      )}
+    </div>
   );
 };
 

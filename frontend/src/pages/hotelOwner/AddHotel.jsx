@@ -1,80 +1,52 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import axios from "axios";
-import Title from '../../components/Title'
-import { useAppContext } from "../../context/AppContext.jsx";
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
+
+const fadeUp = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+};
 
 const AddHotel = () => {
-  const { token, logoutUser } = useAppContext(); // 👈 obtenemos el token desde el contexto
+  const { token, logoutUser } = useAppContext();
 
   const [hotel, setHotel] = useState({
-    name: "",
-    country: "",
-    city: "",
-    address: "",
-    description: "",
-    amenities: "",
-    pricePerNight: "",
+    name: "", country: "", city: "", address: "", description: "", amenities: "", pricePerNight: "",
   });
-
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setHotel({ ...hotel, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setHotel({ ...hotel, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       if (!token) {
-        alert("❌ Debes iniciar sesión para registrar un hotel");
+        toast.error("Debes iniciar sesión para registrar un hotel");
         setLoading(false);
         return;
       }
-
-      const res = await axios.post(
+      await axios.post(
         `${import.meta.env.VITE_API_URL}/hotels`,
         {
           name: hotel.name,
-          location: {
-            country: hotel.country,
-            city: hotel.city,
-            address: hotel.address,
-          },
+          location: { country: hotel.country, city: hotel.city, address: hotel.address },
           description: hotel.description,
-          amenities: hotel.amenities
-            ? hotel.amenities.split(",").map((a) => a.trim())
-            : [],
+          amenities: hotel.amenities ? hotel.amenities.split(",").map((a) => a.trim()) : [],
           pricePerNight: hotel.pricePerNight,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // 👈 usamos token desde contexto
-          }}
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      alert("✅ Hotel registrado correctamente");
-      console.log(res.data);
-
-      // limpiar formulario
-      setHotel({
-        name: "",
-        country: "",
-        city: "",
-        address: "",
-        description: "",
-        amenities: "",
-        pricePerNight: "",
-      });
+      toast.success("Hotel registrado correctamente");
+      setHotel({ name: "", country: "", city: "", address: "", description: "", amenities: "", pricePerNight: "" });
     } catch (err) {
-      console.error(err.response?.data || err.message);
-
       if (err.response?.status === 401) {
-        alert("⚠️ Sesión expirada. Vuelve a iniciar sesión.");
-        if (logoutUser) logoutUser(); // 👈 usamos el método del contexto
+        toast.error("Sesión expirada. Vuelve a iniciar sesión.");
+        if (logoutUser) logoutUser();
       } else {
-        alert("❌ Error al registrar hotel");
+        toast.error("Error al registrar hotel");
       }
     } finally {
       setLoading(false);
@@ -82,130 +54,70 @@ const AddHotel = () => {
   };
 
   return (
-    <div className="py-10 flex flex-col justify-between bg-white">
-      <form
-        className="md:p-10 p-4 space-y-5 max-w-lg"
+    <div className="py-6 max-w-4xl">
+      <motion.div {...fadeUp} className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">Añadir Hotel</h2>
+        <p className="text-sm text-gray-500 mt-1">Completa los detalles del nuevo hotel.</p>
+      </motion.div>
+
+      <motion.form
+        initial="initial"
+        animate="animate"
+        variants={{ animate: { transition: { staggerChildren: 0.05 } } }}
         onSubmit={handleSubmit}
+        className="space-y-5 max-w-lg bg-white rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm"
       >
-      <Title align='left' font='outfit' title='Add Hotel' subTitle='Fill in the details carefully and accurate room details, pricing, and amenities, to enhance the user booking experience.' />
+        <motion.div variants={fadeUp}>
+          <label className="text-sm font-medium text-gray-700 mb-1.5 block">Nombre del Hotel</label>
+          <input type="text" name="name" value={hotel.name} onChange={handleChange} placeholder="Nombre del Hotel" className="outline-none py-2.5 px-3 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary-light transition-all w-full text-sm" required />
+        </motion.div>
 
-        {/* Nombre del hotel */}
-        <div className="flex flex-col gap-1 max-w-md">
-          <label className="text-base font-medium" htmlFor="hotel-name">
-            Hotel
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={hotel.name}
-            onChange={handleChange}
-            placeholder="Nombre del Hotel"
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-            required
-          />
-        </div>
-
-        {/* País y Ciudad */}
-        <div className="flex items-center gap-5 flex-wrap">
-          <div className="flex-1 flex flex-col gap-1 w-32">
-            <label className="text-base font-medium" htmlFor="country">
-              País
-            </label>
-            <input
-              type="text"
-              name="country"
-              value={hotel.country}
-              onChange={handleChange}
-              placeholder="Ej: Colombia"
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-              required
-            />
+        <motion.div variants={fadeUp} className="flex items-center gap-4">
+          <div className="flex-1">
+            <label className="text-sm font-medium text-gray-700 mb-1.5 block">País</label>
+            <input type="text" name="country" value={hotel.country} onChange={handleChange} placeholder="Colombia" className="outline-none py-2.5 px-3 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary-light transition-all w-full text-sm" required />
           </div>
-          <div className="flex-1 flex flex-col gap-1 w-32">
-            <label className="text-base font-medium" htmlFor="city">
-              Ciudad
-            </label>
-            <input
-              type="text"
-              name="city"
-              value={hotel.city}
-              onChange={handleChange}
-              placeholder="Ej: Medellín"
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-              required
-            />
+          <div className="flex-1">
+            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Ciudad</label>
+            <input type="text" name="city" value={hotel.city} onChange={handleChange} placeholder="Medellín" className="outline-none py-2.5 px-3 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary-light transition-all w-full text-sm" required />
           </div>
-        </div>
+        </motion.div>
 
-        {/* Dirección */}
-        <div className="flex flex-col gap-1 max-w-md">
-          <label className="text-base font-medium" htmlFor="address">
-            Dirección
-          </label>
-          <input
-            type="text"
-            name="address"
-            value={hotel.address}
-            onChange={handleChange}
-            placeholder="Dirección"
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-            required
-          />
-        </div>
+        <motion.div variants={fadeUp}>
+          <label className="text-sm font-medium text-gray-700 mb-1.5 block">Dirección</label>
+          <input type="text" name="address" value={hotel.address} onChange={handleChange} placeholder="Dirección" className="outline-none py-2.5 px-3 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary-light transition-all w-full text-sm" required />
+        </motion.div>
 
-        {/* Descripción */}
-        <div className="flex flex-col gap-1 max-w-md">
-          <label className="text-base font-medium" htmlFor="description">
-            Descripción
-          </label>
-          <textarea
-            name="description"
-            value={hotel.description}
-            onChange={handleChange}
-            placeholder="Descripción"
-            rows={4}
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40 resize-none"
-          ></textarea>
-        </div>
+        <motion.div variants={fadeUp}>
+          <label className="text-sm font-medium text-gray-700 mb-1.5 block">Descripción</label>
+          <textarea name="description" value={hotel.description} onChange={handleChange} placeholder="Descripción del hotel" rows={3} className="outline-none py-2.5 px-3 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary-light transition-all w-full text-sm resize-none" />
+        </motion.div>
 
-        {/* Amenidades */}
-        <div className="flex flex-col gap-1 max-w-md">
-          <label className="text-base font-medium" htmlFor="amenities">
-            Amenidades (separadas por coma)
-          </label>
-          <input
-            type="text"
-            name="amenities"
-            value={hotel.amenities}
-            onChange={handleChange}
-            placeholder="Wifi, Piscina, Parqueadero"
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-          />
-        </div>
+        <motion.div variants={fadeUp}>
+          <label className="text-sm font-medium text-gray-700 mb-1.5 block">Amenidades (separadas por coma)</label>
+          <input type="text" name="amenities" value={hotel.amenities} onChange={handleChange} placeholder="Wifi, Piscina, Parqueadero" className="outline-none py-2.5 px-3 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary-light transition-all w-full text-sm" />
+        </motion.div>
 
-        {/* Precio por noche */}
-        <div className="flex flex-col gap-1 max-w-md">
-          <label className="text-base font-medium" htmlFor="pricePerNight">
-            Precio por Noche
-          </label>
-          <input
-            type="number"
-            name="pricePerNight"
-            value={hotel.pricePerNight}
-            onChange={handleChange}
-            placeholder="Ej: 150000"
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-          />
-        </div>
+        <motion.div variants={fadeUp}>
+          <label className="text-sm font-medium text-gray-700 mb-1.5 block">Precio por Noche</label>
+          <input type="number" name="pricePerNight" value={hotel.pricePerNight} onChange={handleChange} placeholder="150000" className="outline-none py-2.5 px-3 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary-light transition-all w-full text-sm" />
+        </motion.div>
 
-        {/* Botón */}
-        <button
-          className="px-8 py-2.5 bg-indigo-500 text-white font-medium rounded"
+        <motion.button
+          variants={fadeUp}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full py-2.5 bg-gradient-to-r from-secondary to-gray-800 text-white font-medium rounded-lg hover:from-gray-800 hover:to-gray-900 transition text-sm cursor-pointer disabled:opacity-60 shadow-sm"
           disabled={loading}
         >
-          {loading ? "Registrando..." : "Registrar Hotel"}
-        </button>
-      </form>
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+              Registrando...
+            </span>
+          ) : "Registrar Hotel"}
+        </motion.button>
+      </motion.form>
     </div>
   );
 };

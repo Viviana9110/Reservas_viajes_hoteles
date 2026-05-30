@@ -2,152 +2,97 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
+import { motion, AnimatePresence } from "framer-motion";
+
+const NAV_LINKS = [
+  { to: "/", label: "Inicio" },
+  { to: "/hotels", label: "Hoteles" },
+  { to: "/trips", label: "Paquetes" },
+  { to: "/custom-trips", label: "Personalizado" },
+];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const { user, setShowUserLogin, navigate, logoutUser } = useAppContext();
-
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (location.pathname !== "/") {
       setIsScrolled(true);
       return;
-    } else {
-      setIsScrolled(false);
     }
-    setIsScrolled((prev) => (location.pathname !== "/" ? true : prev));
+    setIsScrolled(false);
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, [location.pathname]);
 
+  const isHome = location.pathname === "/";
+
+  const menuVariants = {
+    closed: { opacity: 0, scale: 0.95, y: -12 },
+    open: { opacity: 1, scale: 1, y: 0 },
+  };
+
   return (
-    <nav className={`fixed top-0 left-0 w-full flex items-center justify-between px-4 md:px-16 lg:px-24 xl:px-32 transition-all duration-500 z-50 ${isScrolled ? "bg-white/80 shadow-md text-gray-700 backdrop-blur-lg py-3 md:py-4" : "py-4 md:py-6"}`}>
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+      isScrolled
+        ? "bg-white/70 backdrop-blur-xl shadow-[0_1px_0_rgba(42,31,26,0.06)] py-3 md:py-3"
+        : "bg-gradient-to-b from-black/20 to-transparent py-4 md:py-5"
+    }`}>
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-16 lg:px-24">
+        <Link to="/">
+          <img src={assets.logoTour} alt="Tour Colombia" className="w-22 md:w-25" />
+        </Link>
 
-      {/* Logo */}
-      <Link to="/">
-        <img src={assets.logoTour} alt="logo" className="w-25" />
-      </Link>
-
-      {/* Desktop Menu */}
-      <div className="hidden md:flex items-center gap-4 lg:gap-8">
-        <NavLink to="/" className={`group flex flex-col gap-0.5 ${isScrolled ? "text-gray-700" : "text-white text-xl group-hover:w-full transition-all duration-300"}`}>Home</NavLink>
-        <NavLink to="/hotels" className={`group flex flex-col gap-0.5 ${isScrolled ? "text-gray-700" : "text-white text-xl group-hover:w-full transition-all duration-300"}`}>Hoteles</NavLink>
-        <NavLink to="/trips" className={`group flex flex-col gap-0.5 ${isScrolled ? "text-gray-700" : "text-white text-xl group-hover:w-full transition-all duration-300"}`}>Paquetes</NavLink>
-
-        {/* 👇 Dashboard solo si es owner */}
-        {user?.role === "owner" && (
-          <NavLink to="/owner" className={`border px-4 py-1 text-xl font-semibold rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`}>
-            Dashboard
-          </NavLink>
-        )}
-
-        {/* Botón Login / Perfil */}
-        {!user ? (
-          <button
-            onClick={() => setShowUserLogin(true)}
-            className="bg-black text-white px-8 py-2.5 rounded-full ml-4 transition-all duration-500"
-          >
-            Login
-          </button>
-        ) : (
-          <div className="relative group cursor-pointer flex items-center gap-2">
-            {/* Avatar */}
-            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-black text-white text-xl font-semibold">
-              {user.name?.charAt(0).toUpperCase() || "U"}
-            </div>
-            {/* Nombre */}
-            <span className="text-white text-xl font-medium">{user.name}</span>
-
-            {/* Dropdown */}
-            <ul className="hidden group-hover:block absolute top-12 right-0  bg-white/20 backdrop-blur shadow border border-gray py-2.5 w-44 rounded-md text-sm z-40">
-              <li
-                onClick={() => navigate("/my-bookings")}
-                className="p-2 text-gray-950 hover:text-gray-500 cursor-pointer"
-              >
-                Mis Reservas
-              </li>
-              <li
-                onClick={() => navigate("/my-bookings-trips")}
-                className="p-2 text-gray-950 hover:text-gray-500 cursor-pointer"
-              >
-                Mis Viajes
-              </li>
-              
-              <li
-                onClick={logoutUser}
-                className="p-2 hover:text-gray-950 cursor-pointer text-red-600"
-              >
-                Logout
-              </li>
-            </ul>
+        <div className="hidden md:flex items-center gap-3 lg:gap-6">
+          <div className="flex items-center gap-0.5">
+            {NAV_LINKS.map((link) => (
+              <NavLink key={link.to} to={link.to} end={link.to === "/"} className="relative px-3 py-2">
+                {({ isActive }) => (
+                  <>
+                    <span className={`text-sm font-medium transition-colors duration-300 ${
+                      isActive
+                        ? isScrolled ? "text-primary" : "text-white"
+                        : isScrolled ? "text-gray-700 hover:text-primary" : "text-white/80 hover:text-white"
+                    }`}>
+                      {link.label}
+                    </span>
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-underline"
+                        className={`absolute -bottom-0.5 left-2 right-2 h-0.5 rounded-full ${
+                          isScrolled ? "bg-primary" : "bg-white"
+                        }`}
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                  </>
+                )}
+              </NavLink>
+            ))}
           </div>
-        )}
-      </div>
 
-      {/* Mobile Menu Btn */}
-      <button
-        onClick={() => setOpen(!open)}
-        aria-label="Menu"
-        className="sm:hidden"
-      >
-        <svg
-          width="21"
-          height="15"
-          viewBox="0 0 21 15"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect width="21" height="1.5" rx=".75" fill="#426287" />
-          <rect x="8" y="6" width="13" height="1.5" rx=".75" fill="#426287" />
-          <rect x="6" y="13" width="15" height="1.5" rx=".75" fill="#426287" />
-        </svg>
-      </button>
-
-      {/* Mobile Menu */}
-      {open && (
-        <div className="absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden flex">
-          <NavLink to="/" onClick={() => setOpen(false)} className="block">
-            Home
-          </NavLink>
-          <NavLink to="/hotels" onClick={() => setOpen(false)} className="block">
-            Hoteles
-          </NavLink>
-          <NavLink to="/trips" onClick={() => setOpen(false)} className="block">
-            Paquetes
-          </NavLink>
-
-          {user && (
-            <>
-              <NavLink
-                to="/my-bookings"
-                onClick={() => setOpen(false)}
-                className="block"
-              >
-                Mis Reservas
-              </NavLink>
-              <NavLink
-                to="/my-bookings-trips"
-                onClick={() => setOpen(false)}
-                className="block"
-              >
-                Mis Viajes
-              </NavLink>
-              
-            </>
-          )}
-
-          {/* 👇 Dashboard solo si es owner */}
           {user?.role === "owner" && (
             <NavLink
               to="/owner"
-              onClick={() => setOpen(false)}
-              className="block"
+              className={({ isActive }) =>
+                `px-4 py-1.5 text-sm font-semibold rounded-full cursor-pointer transition-all ${
+                  isActive
+                    ? "bg-primary text-white"
+                    : isScrolled
+                      ? "border border-primary text-primary hover:bg-primary hover:text-white"
+                      : "border border-white/60 text-white hover:bg-white hover:text-primary"
+                }`
+              }
             >
               Dashboard
             </NavLink>
@@ -155,27 +100,136 @@ const Navbar = () => {
 
           {!user ? (
             <button
-              onClick={() => {
-                setShowUserLogin(true);
-                setOpen(false);
-              }}
-              className="cursor-pointer px-6 py-2 mt-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full text-sm"
+              onClick={() => setShowUserLogin(true)}
+              className={`px-7 py-2.5 rounded-full ml-2 font-medium text-sm transition-all duration-300 active:scale-95 cursor-pointer ${
+                isScrolled
+                  ? "bg-secondary text-white hover:bg-gray-800"
+                  : "bg-white/15 backdrop-blur text-white border border-white/30 hover:bg-white/25"
+              }`}
             >
-              Login
+              Iniciar Sesión
             </button>
           ) : (
-            <button
-              onClick={() => {
-                logoutUser();
-                setOpen(false);
-              }}
-              className="text-left text-red-600 mt-2"
-            >
-              Logout
-            </button>
+            <div className="relative ml-2">
+              <div className="group">
+                <div className="flex items-center gap-2 cursor-pointer">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className={`w-9 h-9 flex items-center justify-center rounded-full font-semibold text-sm transition-colors ${
+                      isScrolled ? "bg-primary text-white" : "bg-white/15 text-white backdrop-blur"
+                    }`}
+                  >
+                    {user.name?.charAt(0).toUpperCase() || "U"}
+                  </motion.div>
+                  <span className={`text-sm font-medium hidden lg:block ${isScrolled ? "text-gray-800" : "text-white"}`}>
+                    {user.name}
+                  </span>
+                </div>
+
+                <AnimatePresence>
+                  <motion.ul
+                    variants={menuVariants}
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                    transition={{ duration: 0.15 }}
+                    className="invisible group-hover:visible absolute top-11 right-0 bg-white shadow-xl border border-gray-100/80 py-1.5 w-48 rounded-xl text-sm z-40 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                  >
+                    {[
+                      { label: "Mis Reservas", path: "/my-bookings" },
+                      { label: "Mis Viajes", path: "/my-bookings-trips" },
+                      { label: "Viaje Personalizado", path: "/my-custom-trips" },
+                    ].map((item) => (
+                      <li
+                        key={item.path}
+                        onClick={() => navigate(item.path)}
+                        className="px-4 py-2.5 text-gray-700 hover:bg-cream hover:text-primary cursor-pointer transition-colors"
+                      >
+                        {item.label}
+                      </li>
+                    ))}
+                    <li className="border-t border-gray-100 my-1" />
+                    <li onClick={logoutUser} className="px-4 py-2.5 text-red-600 hover:bg-red-50 cursor-pointer transition-colors">
+                      Cerrar Sesión
+                    </li>
+                  </motion.ul>
+                </AnimatePresence>
+              </div>
+            </div>
           )}
         </div>
-      )}
+
+        <button onClick={() => setOpen(!open)} aria-label="Menu" className="md:hidden cursor-pointer z-50">
+          <div className="w-5 h-4 relative flex flex-col justify-between">
+            <motion.span
+              animate={open ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
+              className="block h-0.5 w-full rounded-full origin-center"
+              style={{ background: isScrolled ? "#2A1F1A" : "white" }}
+            />
+            <motion.span
+              animate={open ? { opacity: 0, x: -10 } : { opacity: 1, x: 0 }}
+              className="block h-0.5 w-3/4 rounded-full"
+              style={{ background: isScrolled ? "#2A1F1A" : "white" }}
+            />
+            <motion.span
+              animate={open ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
+              className="block h-0.5 w-full rounded-full origin-center"
+              style={{ background: isScrolled ? "#2A1F1A" : "white" }}
+            />
+          </div>
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -12, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.97 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute top-full left-3 right-3 mt-1 bg-white/95 backdrop-blur-xl shadow-xl border border-gray-100/80 rounded-2xl py-3 px-3 md:hidden"
+          >
+            {NAV_LINKS.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.to === "/"}
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `block px-4 py-3 rounded-xl transition-colors text-sm font-medium ${
+                    isActive ? "bg-primary-light text-primary" : "text-gray-700 hover:bg-cream"
+                  }`
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+            {user && (
+              <>
+                <div className="h-px bg-gray-100 my-1 mx-3" />
+                <NavLink to="/my-bookings" onClick={() => setOpen(false)} className="block px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-cream transition-colors">Mis Reservas</NavLink>
+                <NavLink to="/my-bookings-trips" onClick={() => setOpen(false)} className="block px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-cream transition-colors">Mis Viajes</NavLink>
+                <NavLink to="/my-custom-trips" onClick={() => setOpen(false)} className="block px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-cream transition-colors">Viaje Personalizado</NavLink>
+              </>
+            )}
+            {user?.role === "owner" && (
+              <NavLink to="/owner" onClick={() => setOpen(false)} className="block px-4 py-3 rounded-xl text-sm text-primary font-semibold hover:bg-primary-light transition-colors">Dashboard</NavLink>
+            )}
+            <div className="h-px bg-gray-100 my-1 mx-3" />
+            {!user ? (
+              <button onClick={() => { setShowUserLogin(true); setOpen(false); }}
+                className="w-full cursor-pointer px-4 py-3 mt-1 bg-primary hover:bg-primary-dark transition text-white rounded-xl text-sm font-medium text-center">
+                Iniciar Sesión
+              </button>
+            ) : (
+              <button onClick={() => { logoutUser(); setOpen(false); }}
+                className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer">
+                Cerrar Sesión
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

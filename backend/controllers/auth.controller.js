@@ -1,20 +1,10 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { generateToken } from "../utils/jwt.js";
 
-// 🔹 Generar token
-const generateToken = (user) => {
-  return jwt.sign(
-    { id: user._id, email: user.email, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" }
-  );
-};
-
-// ✅ Registro
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -27,18 +17,20 @@ export const register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: "user", // 👈 por defecto user
+      phone: phone || "",
+      role: "user",
     });
 
     const token = generateToken(user);
 
     res.status(201).json({
       success: true,
-      token, // 👈 ahora enviamos el JWT en la respuesta
+      token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
         role: user.role,
       },
     });
@@ -47,7 +39,6 @@ export const register = async (req, res) => {
   }
 };
 
-// ✅ Login
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -62,11 +53,12 @@ export const login = async (req, res) => {
 
     res.json({
       success: true,
-      token, // 👈 el frontend lo guardará en localStorage
+      token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
         role: user.role,
       },
     });
@@ -75,12 +67,10 @@ export const login = async (req, res) => {
   }
 };
 
-// ✅ Logout (opcional en frontend: eliminar localStorage)
 export const logout = (req, res) => {
   res.json({ success: true, message: "Sesión cerrada, elimina el token en el frontend" });
 };
 
-// ✅ Obtener usuario autenticado
 export const getMe = async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ message: "No autorizado" });

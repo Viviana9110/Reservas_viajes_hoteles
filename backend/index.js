@@ -15,49 +15,47 @@ import packageRoutes from "./routes/package.routes.js";
 import searchRoutes from "./routes/search.routes.js";
 
 import dashboardRoutes from "./routes/dashboard.routes.js";
+import customTripRoutes from "./routes/customTrip.routes.js";
+import destinationRoutes from "./routes/destination.routes.js";
 
 import { notFound, onError } from "./middlewares/error.js";
 import cookieParser from "cookie-parser";
 
 const app = express();
 
-// 🔹 Conectar a la base de datos
 connectDB();
 
-const allowedOrigins = ['http://localhost:5173', 'https://reservas-viajes-hoteles-front.vercel.app' ]
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://reservas-viajes-hoteles-front.vercel.app",
+];
 
-
-// 🔹 Middlewares
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: "*", credentials: true }));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
-// 🔹 Ruta de prueba
 app.get("/", (req, res) => res.send("API is working 🚀"));
 
-// 🔹 Rutas principales
-app.use("/api/auth", authRoutes);       // /api/auth/register & /api/auth/login
-app.use("/api/hotels", hotelsRoutes);   // rutas de hoteles
-app.use("/api/hoteles", roomRoutes); //Habitaciones
-app.use("/api/rooms", roomRoutes)
-app.use("/api/bookings", bookingsRoutes); // rutas de reservas
-
-app.use("/api/trips", packageRoutes );
-app.use("/api/booking-trips", bookingTripRoutes); // rutas de reservas
-
+app.use("/api/auth", authRoutes);
+app.use("/api/hotels", hotelsRoutes);
+app.use("/api/hoteles", roomRoutes);
+app.use("/api/bookings", bookingsRoutes);
+app.use("/api/trips", packageRoutes);
+app.use("/api/booking-trips", bookingTripRoutes);
 app.use("/api/search", searchRoutes);
-
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/custom-trips", customTripRoutes);
+app.use("/api/destinations", destinationRoutes);
 
-// 🔹 Manejo de errores
 app.use(notFound);
 app.use(onError);
 
-// 🔹 Levantar servidor
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () =>
   console.log(`✅ Server running on http://localhost:${PORT}`)
 );
-
-
-

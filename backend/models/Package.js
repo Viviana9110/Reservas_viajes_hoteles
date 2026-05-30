@@ -8,6 +8,7 @@ const packageSchema = new mongoose.Schema(
     description: { type: String },
     price: { type: Number, required: true },
     days: { type: Number, required: true },
+    images: [{ type: String }],
    
   },
   { timestamps: true }

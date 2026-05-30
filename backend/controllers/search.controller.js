@@ -18,26 +18,25 @@ export const search = async (req, res) => {
     const lim = Math.max(1, parseInt(limit, 10));
     const skip = (pageNum - 1) * lim;
     const dest = (destination || "").trim();
+    const guestCount = parseInt(guests, 10) || 0;
 
-    // Query base para hoteles
     const hotelsQuery = dest
       ? {
           $or: [
             { "location.city": { $regex: dest, $options: "i" } },
             { "location.country": { $regex: dest, $options: "i" } },
+            { name: { $regex: dest, $options: "i" } },
           ],
         }
       : {};
 
-    // Buscar hoteles
     let hotels = await Hotel.find(hotelsQuery).skip(skip).limit(lim).lean();
 
-    // Si se enviaron fechas, filtrar disponibilidad
-    if (checkIn && checkOut) {
-      const checkInDate = new Date(checkIn);
-      const checkOutDate = new Date(checkOut);
+    const checkInDate = checkIn ? new Date(checkIn) : null;
+    const checkOutDate = checkOut ? new Date(checkOut) : null;
 
-      // Buscar habitaciones ocupadas en esas fechas
+    let bookedRoomIds = [];
+    if (checkInDate && checkOutDate) {
       const bookedRooms = await Booking.find({
         $or: [
           {
@@ -46,38 +45,46 @@ export const search = async (req, res) => {
           },
         ],
       }).select("room");
-
-      const bookedRoomIds = bookedRooms.map((b) => b.room.toString());
-
-      // Filtrar hoteles que tengan al menos una habitación libre
-      const availableHotels = [];
-      for (const hotel of hotels) {
-        const rooms = await Room.find({
-          hotel: hotel._id,
-          _id: { $nin: bookedRoomIds },
-        }).lean();
-
-        if (rooms.length > 0) {
-          availableHotels.push({
-            ...hotel,
-            availableRooms: rooms, // opcional: devolver habitaciones libres
-          });
-        }
-      }
-
-      hotels = availableHotels;
+      bookedRoomIds = bookedRooms.map((b) => b.room.toString());
     }
 
-    // Buscar paquetes turísticos
+    const availableHotels = [];
+    for (const hotel of hotels) {
+      const roomFilter = { hotel: hotel._id };
+      if (bookedRoomIds.length > 0) {
+        roomFilter._id = { $nin: bookedRoomIds };
+      }
+      if (guestCount > 0) {
+        roomFilter.capacity = { $gte: guestCount };
+      }
+
+      const rooms = await Room.find(roomFilter).lean();
+
+      if (rooms.length > 0) {
+        availableHotels.push({
+          ...hotel,
+          availableRooms: rooms,
+          minPrice: Math.min(...rooms.map((r) => r.pricePerNight)),
+          totalAvailable: rooms.length,
+        });
+      }
+    }
+
     const packagesQuery = dest
-      ? { destination: { $regex: dest, $options: "i" } }
+      ? {
+          $or: [
+            { destination: { $regex: dest, $options: "i" } },
+            { name: { $regex: dest, $options: "i" } },
+          ],
+        }
       : {};
 
     const packages = await Package.find(packagesQuery).skip(skip).limit(lim).lean();
 
     return res.json({
-      hotels,
+      hotels: availableHotels,
       packages,
+      query: { destination: dest, checkIn, checkOut, guests: guestCount },
       pagination: { page: pageNum, limit: lim },
     });
   } catch (error) {

@@ -2,24 +2,28 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Hotel from "./models/Hotel.js";
 import Room from "./models/Room.js";
+import User from "./models/User.js";
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://vivianalondononaranjo:S2qsst8rTNaCy6bD@cluster0.g1sbxwi.mongodb.net/Reservas";
+const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
+const DB_NAME = "/Reservas";
 
 const seedDatabase = async () => {
   try {
-    await mongoose.connect(MONGO_URI);
+    await mongoose.connect(`${MONGO_URI}${DB_NAME}`);
     console.log("✅ Conectado a MongoDB");
 
-    // Limpia las colecciones antes de insertar
+    const owner = await User.findOne({ email: "owner@test.com" });
+    if (!owner) {
+      console.log("❌ No se encontró el usuario owner@test.com. Ejecuta seedUsuarios.js primero.");
+      process.exit(1);
+    }
+    const ownerId = owner._id;
+
     await Hotel.deleteMany();
     await Room.deleteMany();
 
-    // Usa un ObjectId válido de un usuario existente
-    const ownerId = new mongoose.Types.ObjectId("68ace0ab41d81f213fdece68");
-
-    // 1️⃣ Crear hoteles
     const hoteles = await Hotel.insertMany([
       {
         name: "Hotel Playa Bonita",
@@ -49,9 +53,7 @@ const seedDatabase = async () => {
 
     console.log("🏨 Hoteles insertados");
 
-    // 2️⃣ Crear habitaciones para cada hotel
     const habitaciones = [
-      // Habitaciones para Playa Bonita
       {
         hotel: hoteles[0]._id,
         roomNumber: "101",
@@ -76,8 +78,6 @@ const seedDatabase = async () => {
         description: "Suite de lujo frente al mar",
         capacity: 4,
       },
-
-      // Habitaciones para Montaña Encantada
       {
         hotel: hoteles[1]._id,
         roomNumber: "101",

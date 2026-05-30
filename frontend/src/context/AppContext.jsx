@@ -68,12 +68,13 @@ export const AppContextProvider = ({ children }) => {
   };
 
   // ✅ Registro con login automático
-  const registerUser = async (name, email, password) => {
+  const registerUser = async (name, email, password, phone = "") => {
     try {
       const { data } = await axios.post("/auth/register", {
         name,
         email,
         password,
+        phone,
       });
 
       localStorage.setItem("token", data.token);

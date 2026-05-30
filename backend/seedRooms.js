@@ -8,7 +8,6 @@ const seedRooms = async () => {
   try {
     await connectDB();
 
-    // 🔹 Buscar un hotel existente (toma el primero que haya)
     const hotel = await Hotel.findOne();
     if (!hotel) {
       console.log("❌ No hay hoteles en la base de datos. Inserta hoteles primero.");
@@ -45,7 +44,7 @@ const seedRooms = async () => {
       },
     ];
 
-    await Room.deleteMany(); // Limpia las habitaciones previas
+    await Room.deleteMany();
     await Room.insertMany(rooms);
 
     console.log("✅ Habitaciones insertadas correctamente");

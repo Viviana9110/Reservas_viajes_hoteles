@@ -1,22 +1,11 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-// 🔹 Conexión a MongoDB Atlas
-const MONGO_URI = "mongodb+srv://vivianalondononaranjo:S2qsst8rTNaCy6bD@cluster0.g1sbxwi.mongodb.net/Reservas";
+dotenv.config();
 
-const connectDB = async () => {
-  try {
-    mongoose.connection.on("connected", () => console.log("✅ Database Connected"));
-    await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-  } catch (error) {
-    console.log("❌ Error de conexión:", error.message);
-  }
-};
+const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-// 🔹 Definir el modelo Hotel
-const hotelSchema = new Schema(
+const hotelSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     location: { type: String, required: true },
@@ -28,12 +17,11 @@ const hotelSchema = new Schema(
 
 const Hotel = mongoose.model("Hotel", hotelSchema);
 
-// 🔹 Crear hoteles de prueba
 const seedHotels = async () => {
   try {
-    await connectDB();
+    await mongoose.connect(`${MONGO_URI}/Reservas`);
+    console.log("✅ Database Connected");
 
-    // Eliminar hoteles previos
     await Hotel.deleteMany({});
 
     const hoteles = [

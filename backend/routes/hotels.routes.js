@@ -1,4 +1,5 @@
 import express from "express";
+import { body } from "express-validator";
 import {
   createHotel,
   getHotels,
@@ -7,33 +8,30 @@ import {
   deleteHotel,
 } from "../controllers/hotels.controller.js";
 import { requireAuth, requireRole } from "../middlewares/auth.js";
+import { validate } from "../middlewares/validate.js";
 import { createRoom, getRoomsByHotel } from "../controllers/rooms.controller.js";
 
 const router = express.Router();
 
-// ==============================
-// Rutas de Hoteles
-// ==============================
+router.post(
+  "/",
+  requireAuth,
+  requireRole("owner", "admin"),
+  [
+    body("name").trim().notEmpty().withMessage("El nombre del hotel es requerido"),
+    body("location").notEmpty().withMessage("La ubicación es requerida"),
+    validate,
+  ],
+  createHotel
+);
 
-// 📌 Crear hotel → solo usuarios autenticados con rol "owner" o "admin"
-router.post("/", requireAuth, requireRole("owner", "admin"), createHotel);
-
-// 📌 Obtener todos los hoteles (público)
 router.get("/", getHotels);
-
-// 📌 Obtener un hotel por ID (público)
 router.get("/:id", getHotelById);
 
 router.post("/:hotelId/rooms", requireAuth, createRoom);
-
-// 📌 Listar habitaciones de un hotel específico (público)
 router.get("/:id/rooms", getRoomsByHotel);
 
-// 📌 Actualizar hotel → solo el owner del hotel o admin
 router.put("/:id", requireAuth, requireRole("owner", "admin"), updateHotel);
-
-// 📌 Eliminar hotel → solo el owner del hotel o admin
 router.delete("/:id", requireAuth, requireRole("owner", "admin"), deleteHotel);
-
 
 export default router;

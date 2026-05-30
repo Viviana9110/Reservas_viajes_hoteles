@@ -1,18 +1,34 @@
 import express from "express";
+import { body } from "express-validator";
 import { cancelBooking, checkAvailability, createBooking, getMyBookings } from "../controllers/bookings.controller.js";
+import { validate } from "../middlewares/validate.js";
 
 const router = express.Router();
 
-// Consultar disponibilidad
-router.post("/availability", checkAvailability);
+router.post(
+  "/availability",
+  [
+    body("roomId").notEmpty().withMessage("roomId es requerido"),
+    body("checkIn").isISO8601().withMessage("checkIn debe ser una fecha válida"),
+    body("checkOut").isISO8601().withMessage("checkOut debe ser una fecha válida"),
+    validate,
+  ],
+  checkAvailability
+);
 
-// Crear reserva
-router.post("/", createBooking);
+router.post(
+  "/",
+  [
+    body("hotelId").notEmpty().withMessage("hotelId es requerido"),
+    body("roomId").notEmpty().withMessage("roomId es requerido"),
+    body("checkIn").isISO8601().withMessage("checkIn debe ser una fecha válida"),
+    body("checkOut").isISO8601().withMessage("checkOut debe ser una fecha válida"),
+    validate,
+  ],
+  createBooking
+);
 
-// Mis reservas
 router.get("/user/:userId", getMyBookings);
-
 router.delete("/:id", cancelBooking);
-
 
 export default router;

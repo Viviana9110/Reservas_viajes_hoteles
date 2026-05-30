@@ -29,10 +29,12 @@ import roomImg2 from './roomImg2.png'
 import roomImg3 from './roomImg3.png'
 import roomImg4 from './roomImg4.png'
 import regImage from './regImage.png'
-import bogota from './bogota.jpg'
+import bogota from './bogota.png'
 import boyaca from './boyaca.jpg'
-import patrimonio from './patrimonio.jpg'
-import mexico from './mexico.jpg'
+import patrimonio from './patrimonio.png'
+import mexico from './mexico.png'
+import heroImage from './heroImage.png'
+import heroI from './heroI.jpg'
 import exclusiveOfferCardImg1 from "./exclusiveOfferCardImg1.png";
 import exclusiveOfferCardImg2 from "./exclusiveOfferCardImg2.png";
 import exclusiveOfferCardImg3 from "./exclusiveOfferCardImg3.png";
@@ -78,6 +80,11 @@ export const assets = {
     uploadArea,
     totalBookingIcon,
     totalRevenueIcon,
+    heroImage,
+    heroI,
+    bogota,
+    patrimonio,
+    mexico
 
 }
 

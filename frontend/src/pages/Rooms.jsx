@@ -1,22 +1,35 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAppContext } from "../context/AppContext";
+import { SkeletonCard } from "../components/Skeleton";
+import EmptyState from "../components/EmptyState";
+import TiltCard from "../components/TiltCard";
+import { assets } from "../assets/assets";
+
+const container = {
+  hidden: {}, visible: { transition: { staggerChildren: 0.08 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 },
+};
 
 const Rooms = () => {
   const { user } = useAppContext();
-  const { id } = useParams(); // id del hotel
+  const { id } = useParams();
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
 
-   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";  
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
-  // Modal
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [roomAvailability, setRoomAvailability] = useState(null);
   const [loadingCheck, setLoadingCheck] = useState(false);
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -25,22 +38,19 @@ const Rooms = () => {
         const data = await res.json();
         setRooms(data);
       } catch (error) {
-        toast.error("Error al cargar habitaciones", error);
+        toast.error("Error al cargar habitaciones");
       } finally {
         setLoading(false);
       }
     };
-
     fetchRooms();
   }, [id]);
 
-  // ✅ Consultar disponibilidad
   const checkAvailability = async () => {
     if (!checkIn || !checkOut) {
-      toast.error("⚠️ Por favor selecciona fechas de entrada y salida");
+      toast.error("Selecciona fechas de entrada y salida");
       return;
     }
-
     try {
       setLoadingCheck(true);
       const res = await fetch(`${API_URL}/bookings/availability`, {
@@ -49,17 +59,17 @@ const Rooms = () => {
         body: JSON.stringify({ roomId: selectedRoom._id, checkIn, checkOut }),
       });
       const data = await res.json();
-      setRoomAvailability(data); // { available: true/false, message }
+      setRoomAvailability(data);
     } catch (error) {
-      toast.error("Error al consultar disponibilidad", error);
+      toast.error("Error al consultar disponibilidad");
     } finally {
       setLoadingCheck(false);
     }
   };
 
-  // ✅ Reservar habitación
   const handleReservation = async () => {
     try {
+      setBookingLoading(true);
       const res = await fetch(`${API_URL}/bookings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,24 +78,23 @@ const Rooms = () => {
           roomId: selectedRoom._id,
           checkIn,
           checkOut,
-          userId: user?._id, // 👈 usar el id real del usuario logueado
+          userId: user?._id,
         }),
       });
-
       if (res.ok) {
-        toast.success("✅ Reserva confirmada");
+        toast.success("Reserva confirmada");
         closeModal();
       } else {
         const errorData = await res.json();
-        toast.error(data.message || "❌ Error al realizar la reserva.");
+        toast.error(errorData.message || "Error al realizar la reserva");
       }
     } catch (error) {
-      console.error("Error en la reserva", error);
-      toast.error("❌ Error al verificar disponibilidad.");
+      toast.error("Error al procesar la reserva");
+    } finally {
+      setBookingLoading(false);
     }
   };
 
-  // ✅ Función para cerrar y limpiar modal
   const closeModal = () => {
     setSelectedRoom(null);
     setRoomAvailability(null);
@@ -93,192 +102,152 @@ const Rooms = () => {
     setCheckOut("");
   };
 
-  if (loading) return <p className="text-center">Cargando habitaciones...</p>;
-
-  return (
-    <div className="flex flex-col-reverse lg:flex-row items-start justify-between pt-28 md:pt-35 px-4 md:px-16 lg:px-24 xl:px-32">
-      <div>
-        {/* Habitaciones */}
-        <div className="flex flex-col items-start text-left">
-          <h1 className="font-playfair text-4xl md:text-[40px]">Habitaciones</h1>
-          <p className="text-sm md:text-base text-gray-500/90 mt-2 max-w-174">
-            Take advantage of our limited-time offers and special packages to
-            enhance your stay and create unforgettable memories.
-          </p>
-        </div>
-
-        <div>
-          {rooms.length > 0 ? (
-            rooms.map((room) => (
-              <div
-                key={room._id}
-                className="flex flex-col items-center bg-white shadow-md rounded-xl py-6 px-5 md:w-[460px] w-[370px] border border-gray-200"
-              >
-                <div className="flex items-center justify-center p-4 bg-indigo-200 rounded-full">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.8}
-                    stroke="#2563EB"
-                    className="w-6 h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3 10h18M4 10V6a2 2 0 012-2h12a2 2 0 012 2v4M4 10v10m16-10v10M8 14h8"
-                    />
-                  </svg>
-                </div>
-                <h2 className="text-gray-900 font-semibold mt-4 text-xl">
-                  Habitación {room.roomNumber}
-                </h2>
-                <p className="text-sm text-gray-600 mt-2 text-center">
-                  Desea consultar la disponibilidad de esta habitación?.
-                </p>
-                <p className="text-gray-500/60 text-sm capitalize">
-                  Tipo: {room.type}
-                </p>
-                <p className="text-gray-500/60 text-sm capitalize">
-                  Capacidad: {room.capacity} personas
-                </p>
-
-                <div className="flex items-center justify-center gap-4 mt-5 w-full">
-                  <p className="md:text-xl text-base font-medium text-indigo-500">
-                    <span className="text-gray-500/60 md:text-sm text-xs">
-                      ${room.pricePerNight}/noche
-                    </span>
-                  </p>
-                  <div className="text-indigo-500">
-                    {/* Abrir modal */}
-                    <button
-                      className="w-full md:w-36 h-10 rounded-md text-white bg-indigo-950 font-medium text-sm hover:bg-indigo-500 active:scale-95 transition"
-                      onClick={() => setSelectedRoom(room)}
-                    >
-                      Ver
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-500">
-              No hay habitaciones disponibles.
-            </p>
-          )}
+  if (loading) {
+    return (
+      <div className="pt-28 md:pt-35 px-4 md:px-16 lg:px-24 xl:px-32 max-w-7xl mx-auto">
+        <div className="skeleton h-10 w-48 mb-2" />
+        <div className="skeleton h-4 w-96 mb-8" />
+        <div className="grid md:grid-cols-2 gap-6">
+          {[1,2].map(i => <SkeletonCard key={i} />)}
         </div>
       </div>
+    );
+  }
 
-      {/* Modal */}
-      {selectedRoom && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur bg-opacity-50 flex justify-center items-center">
-          <div
-            className="flex flex-col items-center bg-white shadow-md rounded-xl py-6 px-5 md:w-[460px] w-[370px] border border-gray-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-center p-4 bg-green-100 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.8}
-                stroke="#16A34A"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8 7V3m8 4V3m-9 8h10m2-6h1a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h1m12 0V3m-8 10l2 2 4-4"
-                />
-              </svg>
-            </div>
-            <h2 className="text-gray-900 font-semibold mt-4 text-xl">
-              Habitación {selectedRoom.roomNumber}
-            </h2>
-            <p className="text-sm text-gray-600 mt-2 text-center">
-              Selecciona tus fechas de estadía para continuar con la reserva.
-            </p>
+  return (
+    <div className="pt-28 md:pt-35 px-4 md:px-16 lg:px-24 xl:px-32 max-w-7xl mx-auto">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+        <h1 className="font-playfair text-4xl md:text-[40px] text-gray-800">Habitaciones</h1>
+        <p className="text-sm md:text-base text-gray-500 mt-2 max-w-2xl">
+          Aprovecha nuestras ofertas y paquetes especiales para mejorar tu estadía y crear recuerdos inolvidables.
+        </p>
+      </motion.div>
 
-            <div className="bg-white text-gray-500 rounded-lg px-6 py-4 flex flex-col md:flex-row gap-4">
-              <div>
-                <label
-                  htmlFor="checkIn"
-                  className="flex items-center gap-2 text-sm font-medium"
-                >
-                  Check in
-                </label>
-                <input
-                  id="checkIn"
-                  type="date"
-                  value={checkIn}
-                  onChange={(e) => setCheckIn(e.target.value)}
-                  className="rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="checkOut"
-                  className="flex items-center gap-2 text-sm font-medium"
-                >
-                  Check out
-                </label>
-                <input
-                  id="checkOut"
-                  type="date"
-                  value={checkOut}
-                  onChange={(e) => setCheckOut(e.target.value)}
-                  className="rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Resultado de disponibilidad */}
-            {roomAvailability && (
-              <p
-                className={`mt-3 font-medium ${
-                  roomAvailability.available ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {roomAvailability.message}
-              </p>
-            )}
-
-            {!user && (
-              <p className="text-red-500 text-sm mt-2">
-                ⚠️ Debes iniciar sesión para reservar.
-              </p>
-            )}
-
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={closeModal}
-                className="w-full md:w-36 h-10 rounded-md border border-gray-300 bg-white text-gray-600 font-medium text-sm hover:bg-gray-100 active:scale-95 transition"
-              >
-                Cancelar
-              </button>
-
-              {!roomAvailability?.available ? (
-                <button
-                  onClick={checkAvailability}
-                  className="w-full md:w-36 h-10 rounded-md text-white bg-blue-950 font-medium text-sm hover:bg-blue-600 active:scale-95 transition"
-                  disabled={loadingCheck}
-                >
-                  {loadingCheck ? "Consultando..." : "Consultar"}
-                </button>
-              ) : (
-                <button
-                  onClick={handleReservation}
-                  className="px-4 py-2 rounded-lg bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!user} // 👈 se deshabilita si no hay usuario logueado
-                >
-                  Reservar
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+      {rooms.length > 0 ? (
+        <motion.div variants={container} initial="hidden" animate="visible" className="grid md:grid-cols-2 gap-6">
+          {rooms.map((room) => (
+            <motion.div key={room._id} variants={item}>
+              <TiltCard>
+                <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden border border-gray-100 group">
+                  <div className="h-52 bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
+                    {room.images?.[0] ? (
+                      <img src={room.images[0]} alt={room.roomNumber} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <span className="text-6xl opacity-30">🛏️</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    <span className="absolute top-3 left-3 px-3 py-1 text-xs font-medium bg-white/90 backdrop-blur rounded-full capitalize shadow-sm">
+                      {room.type}
+                    </span>
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-center justify-between">
+                      <h2 className="font-semibold text-xl text-gray-800">Habitación {room.roomNumber}</h2>
+                      <div className="flex items-center gap-1 text-sm text-gray-500">
+                        <img src={assets.guestsIcon} alt="" className="h-4" />
+                        {room.capacity} pers.
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-2">{room.description || "Habitación cómoda y bien equipada para una estancia agradable."}</p>
+                    {room.amenities?.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {room.amenities.slice(0, 4).map((a, i) => (
+                          <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-md">{a}</span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between mt-5">
+                      <p className="text-2xl font-bold text-primary">
+                        ${room.pricePerNight}
+                        <span className="text-sm font-normal text-gray-500">/noche</span>
+                      </p>
+                      <button
+                        onClick={() => setSelectedRoom(room)}
+                        className="px-6 py-2.5 rounded-lg bg-secondary text-white font-medium text-sm hover:bg-gray-800 active:scale-95 transition cursor-pointer"
+                      >
+                        Reservar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </TiltCard>
+            </motion.div>
+          ))}
+        </motion.div>
+      ) : (
+        <EmptyState title="Sin habitaciones disponibles" description="Este hotel no tiene habitaciones disponibles por el momento." />
       )}
+
+      <AnimatePresence>
+        {selectedRoom && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
+            onClick={closeModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-xl font-bold text-gray-800 text-center">Reservar Habitación {selectedRoom.roomNumber}</h2>
+              <p className="text-sm text-gray-500 text-center mt-1">Selecciona tus fechas de estadía</p>
+
+              <div className="flex gap-4 mt-6">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Entrada</label>
+                  <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition-all" />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Salida</label>
+                  <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition-all" />
+                </div>
+              </div>
+
+              {roomAvailability && (
+                <div className={`mt-4 p-3 rounded-lg text-sm font-medium text-center ${
+                  roomAvailability.available ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+                }`}>
+                  {roomAvailability.message}
+                </div>
+              )}
+
+              {!user && (
+                <p className="text-red-500 text-sm mt-3 text-center">Debes iniciar sesión para reservar.</p>
+              )}
+
+              <div className="flex gap-3 mt-6">
+                <button onClick={closeModal} className="flex-1 py-2.5 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm hover:bg-gray-50 transition cursor-pointer">
+                  Cancelar
+                </button>
+                {!roomAvailability?.available ? (
+                  <button
+                    onClick={checkAvailability}
+                    disabled={loadingCheck}
+                    className="flex-1 py-2.5 rounded-lg bg-secondary text-white font-medium text-sm hover:bg-gray-800 transition cursor-pointer disabled:opacity-60"
+                  >
+                    {loadingCheck ? "Consultando..." : "Consultar"}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleReservation}
+                    disabled={!user || bookingLoading}
+                    className="flex-1 py-2.5 rounded-lg bg-green-600 text-white font-medium text-sm hover:bg-green-700 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {bookingLoading ? "Reservando..." : "Confirmar Reserva"}
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

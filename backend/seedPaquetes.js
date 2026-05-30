@@ -1,41 +1,30 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-// 🔹 Conexión a MongoDB Atlas
-const MONGO_URI = "mongodb+srv://vivianalondononaranjo:S2qsst8rTNaCy6bD@cluster0.g1sbxwi.mongodb.net/Reservas";
+dotenv.config();
 
-const connectDB = async () => {
-  try {
-    mongoose.connection.on("connected", () => console.log("✅ Database Connected"));
-    await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-  } catch (error) {
-    console.log("❌ Error de conexión:", error.message);
-  }
-};
+const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-// 🔹 Definir el modelo Paquete
-const packageSchema = new Schema(
+const packageSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     destination: { type: String, required: true },
     description: { type: String },
     price: { type: Number, required: true },
     days: { type: Number, required: true },
-    hotel: { type: String }, // opcional, si quieres asociar un hotel
+    hotel: { type: String },
+    images: [{ type: String }],
   },
   { timestamps: true }
 );
 
 const Package = mongoose.model("Package", packageSchema);
 
-// 🔹 Crear paquetes de prueba
 const seedPaquetes = async () => {
   try {
-    await connectDB();
+    await mongoose.connect(MONGO_URI);
+    console.log("✅ Database Connected");
 
-    // Eliminar paquetes previos
     await Package.deleteMany({});
 
     const paquetes = [
@@ -46,6 +35,7 @@ const seedPaquetes = async () => {
         price: 1200000,
         days: 4,
         hotel: "Hotel Caribe",
+        images: ["https://picsum.photos/seed/cartagena-paquete/1200/800", "https://picsum.photos/seed/cartagena-playa/1200/800"],
       },
       {
         name: "Paquete Aventura",
@@ -54,6 +44,7 @@ const seedPaquetes = async () => {
         price: 950000,
         days: 5,
         hotel: "Hotel Sierra",
+        images: ["https://picsum.photos/seed/sangil-aventura/1200/800", "https://picsum.photos/seed/sangil-rio/1200/800"],
       },
       {
         name: "Paquete Cultural",
@@ -62,6 +53,7 @@ const seedPaquetes = async () => {
         price: 750000,
         days: 3,
         hotel: "Hotel Andino",
+        images: ["https://picsum.photos/seed/bogota-cultural/1200/800", "https://picsum.photos/seed/bogota-museo/1200/800"],
       },
     ];
 

@@ -1,23 +1,12 @@
-import mongoose, { Schema } from "mongoose";
-import bcrypt from "bcrypt";
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
 
-// 🔹 Conexión a MongoDB Atlas
-const MONGO_URI = "mongodb+srv://vivianalondononaranjo:S2qsst8rTNaCy6bD@cluster0.g1sbxwi.mongodb.net/Reservas";
+dotenv.config();
 
-const connectDB = async () => {
-  try {
-    mongoose.connection.on("connected", () => console.log("✅ Database Connected"));
-    await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-  } catch (error) {
-    console.log("❌ Error de conexión:", error.message);
-  }
-};
+const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-// 🔹 Definir el modelo Usuario
-const userSchema = new Schema(
+const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true, index: true },
@@ -29,15 +18,13 @@ const userSchema = new Schema(
 
 const User = mongoose.model("User", userSchema);
 
-// 🔹 Crear usuarios de prueba
 const seedUsuarios = async () => {
   try {
-    await connectDB();
+    await mongoose.connect(`${MONGO_URI}/Reservas`);
+    console.log("✅ Database Connected");
 
-    // Eliminar usuarios previos
     await User.deleteMany({});
 
-    // Encriptar contraseñas
     const passAdmin = await bcrypt.hash("123456", 10);
     const passUser = await bcrypt.hash("123456", 10);
 
@@ -66,4 +53,3 @@ const seedUsuarios = async () => {
 };
 
 seedUsuarios();
-
